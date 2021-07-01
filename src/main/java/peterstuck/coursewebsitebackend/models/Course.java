@@ -1,0 +1,127 @@
+package peterstuck.coursewebsitebackend.models;
+
+import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
+import java.util.*;
+
+@NoArgsConstructor
+@Entity
+@Table(name = "course")
+public class Course {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private int id;
+
+    @Column
+    private String title;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column
+    private List<Double> rates;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @Column
+    private List<Language> languages;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @Column
+    private List<Language> subtitles;
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @JoinTable(
+            name = "course_category",
+            joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private List<Category> categories;
+
+
+    @OneToMany(mappedBy = "course")
+    private List<Comment> comments;
+
+    @Column(name = "last_update")
+    private Long lastUpdate;
+
+    @Column
+    private Double price;
+
+    public Course(String title, Double price) {
+        this.title = title;
+        this.price = price;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public List<Double> getRates() {
+        return rates;
+    }
+
+    public void setRates(List<Double> rates) {
+        this.rates = rates;
+    }
+
+    public List<Category> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(List<Category> categories) {
+        this.categories = categories;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
+    public List<Language> getLanguages() {
+        return languages;
+    }
+
+    public void setLanguages(List<Language> languages) {
+        this.languages = languages;
+    }
+
+    public List<Language> getSubtitles() {
+        return subtitles;
+    }
+
+    public void setSubtitles(List<Language> subtitles) {
+        this.subtitles = subtitles;
+    }
+
+    public Long getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(Long lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+}
