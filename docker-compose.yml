@@ -20,11 +20,6 @@ services:
 #    build:
 #      context: .
 #      dockerfile: Dockerfile
-#    environment:
-#      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/courses
-#      - SPRING_DATASOURCE_USERNAME=root
-#      - SPRING_DATASOURCE_PASSWORD=root
-#      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
 #    ports:
 #      - 8085:8080
 #    depends_on:

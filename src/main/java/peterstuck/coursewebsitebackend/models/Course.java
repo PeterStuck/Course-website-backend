@@ -1,5 +1,6 @@
 package peterstuck.coursewebsitebackend.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -18,6 +19,7 @@ public class Course {
     @Column
     private String title;
 
+    @JsonIgnore
     @ElementCollection(fetch = FetchType.EAGER)
     @Column
     private List<Double> rates;
@@ -39,6 +41,7 @@ public class Course {
     private List<Category> categories;
 
 
+    @JsonIgnore
     @OneToMany(mappedBy = "course")
     private List<Comment> comments;
 
@@ -47,6 +50,10 @@ public class Course {
 
     @Column
     private Double price;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "course_description_id")
+    private CourseDescription courseDescription;
 
     public Course(String title, Double price) {
         this.title = title;
