@@ -4,13 +4,14 @@ import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.web.bind.annotation.*;
 import peterstuck.coursewebsitebackend.exceptions.CourseInvalidDataException;
 import peterstuck.coursewebsitebackend.exceptions.CourseNotFoundException;
 import peterstuck.coursewebsitebackend.models.Course;
-import peterstuck.coursewebsitebackend.models.CourseDescription;
-import peterstuck.coursewebsitebackend.repositories.CourseRepository;
+import peterstuck.coursewebsitebackend.services.CourseService;
+import peterstuck.coursewebsitebackend.utils.JsonFilter;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,25 +21,28 @@ import java.util.stream.Collectors;
 public class CourseRestController {
 
     @Autowired
-    private CourseRepository repository;
+    @Qualifier(value = "courseServiceImpl")
+    private CourseService service;
+
+    private final String FILTER_NAME = "CourseFilter";
 
     @GetMapping
     public MappingJacksonValue getAllCourses(@RequestParam(required = false) String keyword) {
-        List<Course> courses = repository.findAll();
+        List<Course> courses = service.findAll();
         if (keyword != null) {
             courses = courses.stream()
                     .filter(course -> checkCourseTitleContainsKeyword(course, keyword))
                     .collect(Collectors.toList());
         }
 
-        return filterJson(courses, new String[] { "courseDescription" });
+        return JsonFilter.filter(courses, FILTER_NAME, new String[] { "courseDescription" });
     }
 
     @GetMapping("/{id}")
     public MappingJacksonValue getCourseById(@PathVariable int id) throws CourseNotFoundException {
-        Course course = getCourseOrThrowCourseNotFound(id);
+        Course course = service.findById(id);
 
-        return filterJson(course, null);
+        return JsonFilter.filter(course, FILTER_NAME, null);
     }
 
     // TODO Check if works after add test data
@@ -47,7 +51,7 @@ public class CourseRestController {
             @PathVariable int categoryId,
             @RequestParam(required = false) String keyword
     ) {
-        List<Course> courses = repository.findAll()
+        List<Course> courses = service.findAll()
                 .stream()
                 .filter(course -> checkCourseHasCategoryWithId(course, categoryId))
                 .collect(Collectors.toList());
@@ -58,7 +62,7 @@ public class CourseRestController {
                     .collect(Collectors.toList());
         }
 
-        return filterJson(courses, new String[] { "courseDescription" });
+        return JsonFilter.filter(courses, FILTER_NAME, new String[] { "courseDescription" });
     }
 
     private boolean checkCourseTitleContainsKeyword(Course course, String keyword) {
@@ -74,11 +78,9 @@ public class CourseRestController {
 
     @PostMapping
     public MappingJacksonValue addCourse(@RequestBody Course course) {
-        course.setCourseDescription(new CourseDescription(15.5, "short", "looooooong"));
+        service.save(course);
 
-        repository.save(course);
-
-        return filterJson(course, null);
+        return JsonFilter.filter(course, FILTER_NAME, null);
     }
 
     @PutMapping("/{id}")
@@ -86,44 +88,16 @@ public class CourseRestController {
             @PathVariable int id,
             @RequestBody Course updatedCourse
     ) throws CourseNotFoundException, CourseInvalidDataException {
-        // check if course with given id exists
-        getCourseOrThrowCourseNotFound(id);
+        service.update(id, updatedCourse);
 
-        if (id != updatedCourse.getId())
-            throw new CourseInvalidDataException("Path ID and request body ID must match!");
-
-        repository.save(updatedCourse);
-
-        return filterJson(updatedCourse, null);
+        return JsonFilter.filter(updatedCourse, FILTER_NAME, null);
     }
 
     @DeleteMapping("/{id}")
     public String deleteCourse(@PathVariable int id) throws CourseNotFoundException {
-        Course course = getCourseOrThrowCourseNotFound(id);
-        repository.delete(course);
+        service.delete(id);
 
         return "Course with ID: " + id + " was successfully deleted.";
-    }
-
-    private MappingJacksonValue filterJson(Object obj, String[] exceptFields) {
-        SimpleBeanPropertyFilter simpleBeanPropertyFilter =
-                SimpleBeanPropertyFilter.serializeAllExcept(
-                        (exceptFields != null ? String.join(" ", exceptFields) : "")
-                );
-
-        String courseFilterName = "CourseFilter";
-        FilterProvider filterProvider = new SimpleFilterProvider()
-                .addFilter(courseFilterName, simpleBeanPropertyFilter);
-
-        MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(obj);
-        mappingJacksonValue.setFilters(filterProvider);
-
-        return mappingJacksonValue;
-    }
-
-    private Course getCourseOrThrowCourseNotFound(int id) throws CourseNotFoundException {
-        return repository.findById(id)
-                .orElseThrow(() -> new CourseNotFoundException("Course with id: " + id + " not found!"));
     }
 
 }
