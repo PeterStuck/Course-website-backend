@@ -35,3 +35,5 @@ build/
 
 ### Postgres ###
 .postgresdata
+.postgresdata/**
+.postgresdata/*
