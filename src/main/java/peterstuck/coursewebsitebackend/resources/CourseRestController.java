@@ -6,13 +6,13 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.web.bind.annotation.*;
+import peterstuck.coursewebsitebackend.exceptions.CourseInvalidDataException;
 import peterstuck.coursewebsitebackend.exceptions.CourseNotFoundException;
 import peterstuck.coursewebsitebackend.models.Course;
 import peterstuck.coursewebsitebackend.models.CourseDescription;
 import peterstuck.coursewebsitebackend.repositories.CourseRepository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -45,7 +45,8 @@ public class CourseRestController {
     @GetMapping("/category/{categoryId}")
     public MappingJacksonValue getCoursesByCategory(
             @PathVariable int categoryId,
-            @RequestParam(required = false) String keyword) {
+            @RequestParam(required = false) String keyword
+    ) {
         List<Course> courses = repository.findAll()
                 .stream()
                 .filter(course -> checkCourseHasCategoryWithId(course, categoryId))
@@ -81,13 +82,15 @@ public class CourseRestController {
     }
 
     @PutMapping("/{id}")
-    public MappingJacksonValue updateCourse(@PathVariable int id, @RequestBody Course updatedCourse) throws CourseNotFoundException {
+    public MappingJacksonValue updateCourse(
+            @PathVariable int id,
+            @RequestBody Course updatedCourse
+    ) throws CourseNotFoundException, CourseInvalidDataException {
         // check if course with given id exists
         getCourseOrThrowCourseNotFound(id);
 
-        if (id != updatedCourse.getId()) {
-            throw new IllegalArgumentException("Path ID and request body ID must match!");
-        }
+        if (id != updatedCourse.getId())
+            throw new CourseInvalidDataException("Path ID and request body ID must match!");
 
         repository.save(updatedCourse);
 
@@ -119,10 +122,8 @@ public class CourseRestController {
     }
 
     private Course getCourseOrThrowCourseNotFound(int id) throws CourseNotFoundException {
-        Optional<Course> course = repository.findById(id);
-        if (course.isEmpty())
-            throw new CourseNotFoundException("Course with id: " + id + " not found!");
-        return course.get();
+        return repository.findById(id)
+                .orElseThrow(() -> new CourseNotFoundException("Course with id: " + id + " not found!"));
     }
 
 }
