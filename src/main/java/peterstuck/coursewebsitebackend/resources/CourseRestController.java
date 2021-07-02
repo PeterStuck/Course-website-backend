@@ -80,12 +80,18 @@ public class CourseRestController {
         return filterJson(course, null);
     }
 
-    // TODO Fix auto add object after set new ID
-    @PutMapping
-    public MappingJacksonValue updateCourse(@RequestBody Course course) {
-        repository.save(course);
+    @PutMapping("/{id}")
+    public MappingJacksonValue updateCourse(@PathVariable int id, @RequestBody Course updatedCourse) throws CourseNotFoundException {
+        // check if course with given id exists
+        getCourseOrThrowCourseNotFound(id);
 
-        return filterJson(course, null);
+        if (id != updatedCourse.getId()) {
+            throw new IllegalArgumentException("Path ID and request body ID must match!");
+        }
+
+        repository.save(updatedCourse);
+
+        return filterJson(updatedCourse, null);
     }
 
     @DeleteMapping("/{id}")
