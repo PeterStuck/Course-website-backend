@@ -1,11 +1,13 @@
 package peterstuck.coursewebsitebackend.models;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.*;
 
+@JsonFilter("CourseFilter")
 @NoArgsConstructor
 @Entity
 @Table(name = "course")
@@ -20,11 +22,11 @@ public class Course {
     private String title;
 
     @JsonIgnore
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @Column
     private List<Double> rates;
 
-    @ElementCollection(fetch = FetchType.LAZY)
+    @ElementCollection(fetch = FetchType.EAGER)
     @Column
     private List<Language> languages;
 
@@ -51,7 +53,7 @@ public class Course {
     @Column
     private Double price;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "course_description_id")
     private CourseDescription courseDescription;
 
@@ -130,5 +132,13 @@ public class Course {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public CourseDescription getCourseDescription() {
+        return courseDescription;
+    }
+
+    public void setCourseDescription(CourseDescription courseDescription) {
+        this.courseDescription = courseDescription;
     }
 }
