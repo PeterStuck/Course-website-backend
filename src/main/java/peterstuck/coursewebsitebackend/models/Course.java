@@ -62,6 +62,7 @@ public class Course {
     public Course() {
         this.rates = new ArrayList<>();
         this.comments = new ArrayList<>();
+        this.categories = new ArrayList<>();
         this.lastUpdate = new Date().getTime();
     }
 

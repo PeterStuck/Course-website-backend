@@ -36,6 +36,12 @@ public class Category {
         this.parentCategoryId = parentCategoryId;
     }
 
+    public Category(int id, String name, int parentCategoryId) {
+        this.id = id;
+        this.name = name;
+        this.parentCategoryId = parentCategoryId;
+    }
+
     public int getId() {
         return id;
     }

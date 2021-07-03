@@ -2,6 +2,8 @@ package peterstuck.coursewebsitebackend.resources;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.web.bind.annotation.*;
 import peterstuck.coursewebsitebackend.exceptions.CourseInvalidDataException;
@@ -42,7 +44,6 @@ public class CourseRestController {
         return JsonFilter.filterFields(course, FILTER_NAME, null);
     }
 
-    // TODO Check if works after add test data
     @GetMapping("/category/{categoryId}")
     public MappingJacksonValue getCoursesByCategory(
             @PathVariable int categoryId,
@@ -63,7 +64,7 @@ public class CourseRestController {
     }
 
     private boolean checkCourseTitleContainsKeyword(Course course, String keyword) {
-        return course.getTitle().contains(keyword);
+        return course.getTitle().toLowerCase().contains(keyword.toLowerCase());
     }
 
     private boolean checkCourseHasCategoryWithId(Course course, int categoryId) {
@@ -74,10 +75,10 @@ public class CourseRestController {
 
 
     @PostMapping
-    public MappingJacksonValue addCourse(@RequestBody Course course) {
+    public ResponseEntity<Object> addCourse(@RequestBody Course course) {
         service.save(course);
 
-        return JsonFilter.filterFields(course, FILTER_NAME, null);
+        return new ResponseEntity<>(JsonFilter.filterFields(course, FILTER_NAME, null), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")

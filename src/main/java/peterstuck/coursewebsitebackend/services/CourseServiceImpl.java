@@ -36,8 +36,9 @@ public class CourseServiceImpl implements CourseService {
         if (id != updated.getId())
             throw new CourseInvalidDataException("Path ID and request body ID must match!");
         // check if course exists
-        this.findById(id);
-        this.save(updated);
+        Course course = this.findById(id);
+        updateCourse(course, updated);
+        this.save(course);
 
         return updated;
     }
@@ -46,5 +47,17 @@ public class CourseServiceImpl implements CourseService {
     public void delete(int id) throws CourseNotFoundException {
         Course course = this.findById(id);
         repository.delete(course);
+    }
+
+    private void updateCourse(Course original, Course updated) {
+        original.setTitle(updated.getTitle());
+        original.setLastUpdate(updated.getLastUpdate());
+        original.setComments(updated.getComments());
+        original.setCourseDescription(updated.getCourseDescription());
+        original.setSubtitles(updated.getSubtitles());
+        original.setCategories(updated.getCategories());
+        original.setPrice(updated.getPrice());
+        original.setLanguages(updated.getLanguages());
+        original.setRates(updated.getRates());
     }
 }
