@@ -2,13 +2,15 @@ package peterstuck.coursewebsitebackend.models;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @JsonFilter("CourseFilter")
-@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "course")
 public class Course {
@@ -57,9 +59,10 @@ public class Course {
     @JoinColumn(name = "course_description_id")
     private CourseDescription courseDescription;
 
-    public Course(String title, Double price) {
-        this.title = title;
-        this.price = price;
+    public Course() {
+        this.rates = new ArrayList<>();
+        this.comments = new ArrayList<>();
+        this.lastUpdate = new Date().getTime();
     }
 
     public int getId() {

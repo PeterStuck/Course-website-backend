@@ -7,7 +7,7 @@ import org.springframework.http.converter.json.MappingJacksonValue;
 
 public class JsonFilter {
 
-    public static MappingJacksonValue filter(Object obj, String filterName, String[] exceptFields) {
+    public static MappingJacksonValue filterFields(Object obj, String filterName, String[] exceptFields) {
         SimpleBeanPropertyFilter simpleBeanPropertyFilter =
                 SimpleBeanPropertyFilter.serializeAllExcept(
                         (exceptFields != null ? String.join(" ", exceptFields) : "")

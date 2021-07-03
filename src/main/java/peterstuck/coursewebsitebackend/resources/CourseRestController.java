@@ -1,8 +1,5 @@
 package peterstuck.coursewebsitebackend.resources;
 
-import com.fasterxml.jackson.databind.ser.FilterProvider;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.converter.json.MappingJacksonValue;
@@ -35,14 +32,14 @@ public class CourseRestController {
                     .collect(Collectors.toList());
         }
 
-        return JsonFilter.filter(courses, FILTER_NAME, new String[] { "courseDescription" });
+        return JsonFilter.filterFields(courses, FILTER_NAME, new String[] { "courseDescription" });
     }
 
     @GetMapping("/{id}")
     public MappingJacksonValue getCourseById(@PathVariable int id) throws CourseNotFoundException {
         Course course = service.findById(id);
 
-        return JsonFilter.filter(course, FILTER_NAME, null);
+        return JsonFilter.filterFields(course, FILTER_NAME, null);
     }
 
     // TODO Check if works after add test data
@@ -62,7 +59,7 @@ public class CourseRestController {
                     .collect(Collectors.toList());
         }
 
-        return JsonFilter.filter(courses, FILTER_NAME, new String[] { "courseDescription" });
+        return JsonFilter.filterFields(courses, FILTER_NAME, new String[] { "courseDescription" });
     }
 
     private boolean checkCourseTitleContainsKeyword(Course course, String keyword) {
@@ -80,7 +77,7 @@ public class CourseRestController {
     public MappingJacksonValue addCourse(@RequestBody Course course) {
         service.save(course);
 
-        return JsonFilter.filter(course, FILTER_NAME, null);
+        return JsonFilter.filterFields(course, FILTER_NAME, null);
     }
 
     @PutMapping("/{id}")
@@ -90,7 +87,7 @@ public class CourseRestController {
     ) throws CourseNotFoundException, CourseInvalidDataException {
         service.update(id, updatedCourse);
 
-        return JsonFilter.filter(updatedCourse, FILTER_NAME, null);
+        return JsonFilter.filterFields(updatedCourse, FILTER_NAME, null);
     }
 
     @DeleteMapping("/{id}")
