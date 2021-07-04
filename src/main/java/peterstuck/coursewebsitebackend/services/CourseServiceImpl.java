@@ -17,13 +17,28 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<Course> findAll() {
-        return repository.findAll();
+        List<Course> courses = repository.findAll();
+        courses.forEach(this::computeAvgAndCountOfRates);
+
+        return courses;
     }
 
     @Override
     public Course findById(int id) throws CourseNotFoundException {
-        return repository.findById(id)
+        Course course = repository.findById(id)
                 .orElseThrow(() -> new CourseNotFoundException("Course with id: " + id + " not found!"));
+
+        computeAvgAndCountOfRates(course);
+
+        return course;
+    }
+
+    private void computeAvgAndCountOfRates(Course course) {
+        List<Double> rates = course.getRates();
+
+        double avg = rates.stream().mapToDouble(f -> f).sum() / rates.size();
+        course.setAvgRate(avg);
+        course.setRatesCount(rates.size());
     }
 
     @Override

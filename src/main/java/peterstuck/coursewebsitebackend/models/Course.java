@@ -23,11 +23,6 @@ public class Course {
     @Column
     private String title;
 
-    @JsonIgnore
-    @ElementCollection(fetch = FetchType.LAZY)
-    @Column
-    private List<Double> rates;
-
     @ElementCollection(fetch = FetchType.EAGER)
     @Column
     private List<Language> languages;
@@ -58,6 +53,14 @@ public class Course {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "course_description_id")
     private CourseDescription courseDescription;
+
+    @JsonIgnore
+    @ElementCollection(fetch = FetchType.LAZY)
+    @Column
+    private List<Double> rates;
+
+    private double avgRate;
+    private int ratesCount;
 
     public Course() {
         this.rates = new ArrayList<>();
@@ -144,5 +147,21 @@ public class Course {
 
     public void setCourseDescription(CourseDescription courseDescription) {
         this.courseDescription = courseDescription;
+    }
+
+    public double getAvgRate() {
+        return avgRate;
+    }
+
+    public void setAvgRate(double avgRate) {
+        this.avgRate = avgRate;
+    }
+
+    public int getRatesCount() {
+        return ratesCount;
+    }
+
+    public void setRatesCount(int ratesCount) {
+        this.ratesCount = ratesCount;
     }
 }

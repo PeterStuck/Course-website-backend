@@ -41,7 +41,7 @@ class CourseRestControllerTest {
     private List<Category> testCategories;
     private Course testCourse;
 
-    private static final String BASE_PATH = "/courses";
+    private static final String BASE_PATH = "/api/courses";
 
     @BeforeEach
     void setUp() {
