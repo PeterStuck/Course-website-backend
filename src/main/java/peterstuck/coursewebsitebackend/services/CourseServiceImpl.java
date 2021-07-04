@@ -7,6 +7,7 @@ import peterstuck.coursewebsitebackend.exceptions.CourseNotFoundException;
 import peterstuck.coursewebsitebackend.models.Course;
 import peterstuck.coursewebsitebackend.repositories.CourseRepository;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -47,10 +48,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Course update(int id, Course updated) throws CourseInvalidDataException, CourseNotFoundException {
-        if (id != updated.getId())
-            throw new CourseInvalidDataException("Path ID and request body ID must match!");
-        // check if course exists
+    public Course update(int id, Course updated) throws CourseNotFoundException {
         Course course = this.findById(id);
         updateCourse(course, updated);
         this.save(course);
@@ -66,7 +64,7 @@ public class CourseServiceImpl implements CourseService {
 
     private void updateCourse(Course original, Course updated) {
         original.setTitle(updated.getTitle());
-        original.setLastUpdate(updated.getLastUpdate());
+        original.setLastUpdate(new Date().getTime());
         original.setComments(updated.getComments());
         original.setCourseDescription(updated.getCourseDescription());
         original.setSubtitles(updated.getSubtitles());

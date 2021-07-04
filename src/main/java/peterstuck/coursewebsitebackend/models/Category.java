@@ -1,6 +1,8 @@
 package peterstuck.coursewebsitebackend.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -9,6 +11,7 @@ import java.util.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "category")
+@ApiModel(description = "Details about category")
 public class Category {
 
     @Id
@@ -20,6 +23,7 @@ public class Category {
     private String name;
 
     @Column(name = "parent_category_id")
+    @ApiModelProperty(notes = "When zero then it's one of main categories")
     private int parentCategoryId;
 
     @JsonIgnore

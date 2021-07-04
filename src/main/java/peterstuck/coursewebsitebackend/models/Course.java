@@ -2,7 +2,10 @@ package peterstuck.coursewebsitebackend.models;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -13,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "course")
+@ApiModel(description = "Basic information about course")
 public class Course {
 
     @Id
@@ -21,6 +25,7 @@ public class Course {
     private int id;
 
     @Column
+    @ApiModelProperty(required = true)
     private String title;
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -31,6 +36,7 @@ public class Course {
     @Column
     private List<Language> subtitles;
 
+    @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(
             name = "course_category",
@@ -45,13 +51,16 @@ public class Course {
     private List<Comment> comments;
 
     @Column(name = "last_update")
+    @ApiModelProperty(notes = "Date of last course update in long format", required = true)
     private Long lastUpdate;
 
     @Column
+    @ApiModelProperty(required = true)
     private Double price;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "course_description_id")
+    @ApiModelProperty(required = true)
     private CourseDescription courseDescription;
 
     @JsonIgnore
@@ -59,7 +68,10 @@ public class Course {
     @Column
     private List<Double> rates;
 
+    @ApiModelProperty(value = "Average rate from all rates for course", required = true)
     private double avgRate;
+
+    @ApiModelProperty(required = true)
     private int ratesCount;
 
     public Course() {

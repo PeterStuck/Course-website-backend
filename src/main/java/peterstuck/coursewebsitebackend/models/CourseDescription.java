@@ -1,5 +1,7 @@
 package peterstuck.coursewebsitebackend.models;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -8,6 +10,7 @@ import java.util.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "course_description")
+@ApiModel(description = "Details about course")
 public class CourseDescription {
 
     @Id
@@ -15,9 +18,11 @@ public class CourseDescription {
     private int id;
 
     @Column
-    private double courseLength;
+    @ApiModelProperty(notes = "course duration in hours", required = true)
+    private double duration;
 
     @Column
+    @ApiModelProperty(notes = "course sneak peak", required = true)
     private String shortDescription;
 
     @Column
@@ -25,14 +30,16 @@ public class CourseDescription {
 
     @ElementCollection(fetch = FetchType.LAZY)
     @Column
+    @ApiModelProperty(notes = "topics that will be in course")
     private List<String> mainTopics;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @Column
+    @ApiModelProperty(notes = "additional pre-requirements info for students")
     private List<String> requirements;
 
-    public CourseDescription(double courseLength, String shortDescription, String longDescription) {
-        this.courseLength = courseLength;
+    public CourseDescription(double duration, String shortDescription, String longDescription) {
+        this.duration = duration;
         this.shortDescription = shortDescription;
         this.longDescription = longDescription;
     }
@@ -45,12 +52,12 @@ public class CourseDescription {
         this.id = id;
     }
 
-    public double getCourseLength() {
-        return courseLength;
+    public double getDuration() {
+        return duration;
     }
 
-    public void setCourseLength(double courseLength) {
-        this.courseLength = courseLength;
+    public void setDuration(double courseLength) {
+        this.duration = courseLength;
     }
 
     public String getShortDescription() {

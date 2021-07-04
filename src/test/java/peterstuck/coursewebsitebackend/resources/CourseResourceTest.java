@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class CourseRestControllerTest {
+class CourseResourceTest {
 
     @Autowired
     private MockMvc mvc;
@@ -156,7 +156,7 @@ class CourseRestControllerTest {
             return testCourse;
         });
 
-        var response = makePostCourseRequest(BASE_PATH, testCourse, status().isCreated());
+        var response = makePostCourseRequest(testCourse, status().isCreated());
         Course course = objectMapper().readValue(response.getContentAsString(), Course.class);
 
         verify(repository).save(any());
@@ -184,13 +184,6 @@ class CourseRestControllerTest {
     void shouldReturnStatus404WhenCourseNotFound() throws Exception {
         mvc.perform(delete(BASE_PATH + "/1"))
                 .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void shouldReturnStatus400WhenPathIdIsDifferentThanInRequestBody() throws Exception {
-        testCourse.setId(1);
-
-        makePostPutCourseRequest(BASE_PATH + "/10", testCourse, status().isBadRequest());
     }
 
     @Test
@@ -232,9 +225,9 @@ class CourseRestControllerTest {
                 .andExpect(expectedStatus);
     }
 
-    private MockHttpServletResponse makePostCourseRequest(String path, Course content, ResultMatcher expectedStatus) throws Exception {
+    private MockHttpServletResponse makePostCourseRequest(Course content, ResultMatcher expectedStatus) throws Exception {
         return mvc.perform(
-                post(path)
+                post(CourseResourceTest.BASE_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(toJson(content)
                         ))
