@@ -3,12 +3,16 @@ package peterstuck.coursewebsitebackend.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.*;
 
+@Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "category")
 @ApiModel(description = "Details about category")
@@ -40,41 +44,4 @@ public class Category {
         this.parentCategoryId = parentCategoryId;
     }
 
-    public Category(int id, String name, int parentCategoryId) {
-        this.id = id;
-        this.name = name;
-        this.parentCategoryId = parentCategoryId;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getParentCategoryId() {
-        return parentCategoryId;
-    }
-
-    public void setParentCategoryId(int parentCategoryId) {
-        this.parentCategoryId = parentCategoryId;
-    }
-
-    public List<Course> getCourses() {
-        return courses;
-    }
-
-    public void setCourses(List<Course> courses) {
-        this.courses = courses;
-    }
 }

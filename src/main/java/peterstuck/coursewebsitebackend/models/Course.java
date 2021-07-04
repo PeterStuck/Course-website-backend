@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.List;
 
 @JsonFilter("CourseFilter")
+@Data
 @AllArgsConstructor
 @Entity
 @Table(name = "course")
@@ -51,7 +52,7 @@ public class Course {
     private List<Comment> comments;
 
     @Column(name = "last_update")
-    @ApiModelProperty(notes = "Date of last course update in long format", required = true)
+    @ApiModelProperty(notes = "Date of last course update in long format. Automatically created when course is being created and every course update")
     private Long lastUpdate;
 
     @Column
@@ -79,101 +80,5 @@ public class Course {
         this.comments = new ArrayList<>();
         this.categories = new ArrayList<>();
         this.lastUpdate = new Date().getTime();
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public List<Double> getRates() {
-        return rates;
-    }
-
-    public void setRates(List<Double> rates) {
-        this.rates = rates;
-    }
-
-    public List<Category> getCategories() {
-        return categories;
-    }
-
-    public void setCategories(List<Category> categories) {
-        this.categories = categories;
-    }
-
-    public List<Comment> getComments() {
-        return comments;
-    }
-
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
-    }
-
-    public List<Language> getLanguages() {
-        return languages;
-    }
-
-    public void setLanguages(List<Language> languages) {
-        this.languages = languages;
-    }
-
-    public List<Language> getSubtitles() {
-        return subtitles;
-    }
-
-    public void setSubtitles(List<Language> subtitles) {
-        this.subtitles = subtitles;
-    }
-
-    public Long getLastUpdate() {
-        return lastUpdate;
-    }
-
-    public void setLastUpdate(Long lastUpdate) {
-        this.lastUpdate = lastUpdate;
-    }
-
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
-    public CourseDescription getCourseDescription() {
-        return courseDescription;
-    }
-
-    public void setCourseDescription(CourseDescription courseDescription) {
-        this.courseDescription = courseDescription;
-    }
-
-    public double getAvgRate() {
-        return avgRate;
-    }
-
-    public void setAvgRate(double avgRate) {
-        this.avgRate = avgRate;
-    }
-
-    public int getRatesCount() {
-        return ratesCount;
-    }
-
-    public void setRatesCount(int ratesCount) {
-        this.ratesCount = ratesCount;
     }
 }

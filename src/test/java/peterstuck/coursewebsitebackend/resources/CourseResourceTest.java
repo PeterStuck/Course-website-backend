@@ -45,11 +45,13 @@ class CourseResourceTest {
 
     @BeforeEach
     void setUp() {
-        testCategories = Arrays.asList(
-                new Category(1, "CATEGORY 1", 0),
-                new Category(2, "CATEGORY 2", 1),
-                new Category(3, "CATEGORY 3", 2)
-        );
+        testCategories = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            var cat = new Category("CATEGORY " + i, 0);
+            cat.setId(i + 1);
+            testCategories.add(cat);
+        }
+
         testCourses = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             var course = CourseFactory.createCourse("TEST " + i, Math.max(i, 1.0));

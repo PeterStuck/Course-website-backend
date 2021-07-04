@@ -2,7 +2,6 @@ package peterstuck.coursewebsitebackend.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import peterstuck.coursewebsitebackend.exceptions.CourseInvalidDataException;
 import peterstuck.coursewebsitebackend.exceptions.CourseNotFoundException;
 import peterstuck.coursewebsitebackend.models.Course;
 import peterstuck.coursewebsitebackend.repositories.CourseRepository;

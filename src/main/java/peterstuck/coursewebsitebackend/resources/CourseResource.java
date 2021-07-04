@@ -104,7 +104,7 @@ public class CourseResource {
             @PathVariable int id,
             @ApiParam(value = "course with updated data", required = true)
             @RequestBody Course updatedCourse
-    ) throws CourseNotFoundException, CourseInvalidDataException {
+    ) throws CourseNotFoundException {
         service.update(id, updatedCourse);
 
         return JsonFilter.filterFields(updatedCourse, FILTER_NAME, null);
