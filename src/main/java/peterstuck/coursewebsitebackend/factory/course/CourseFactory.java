@@ -1,12 +1,13 @@
-package peterstuck.coursewebsitebackend.factory;
+package peterstuck.coursewebsitebackend.factory.course;
 
-import peterstuck.coursewebsitebackend.builder.CourseBuilder;
-import peterstuck.coursewebsitebackend.builder.StandardCourseBuilder;
+import peterstuck.coursewebsitebackend.builder.course.CourseBuilder;
+import peterstuck.coursewebsitebackend.builder.course.StandardCourseBuilder;
 import peterstuck.coursewebsitebackend.models.Category;
 import peterstuck.coursewebsitebackend.models.Course;
 import peterstuck.coursewebsitebackend.models.Language;
 
 import java.util.List;
+import java.util.Set;
 
 public class CourseFactory {
 
@@ -22,7 +23,7 @@ public class CourseFactory {
         return course;
     }
 
-    public static Course createCourse(String title, Double price, List<Language> languages, List<Language> subtitles) {
+    public static Course createCourse(String title, Double price, Set<Language> languages, Set<Language> subtitles) {
         Course course = courseBuilder
                 .buildTitle(title)
                 .buildPrice(price)
@@ -45,7 +46,7 @@ public class CourseFactory {
         return course;
     }
 
-    public static Course createCourse(String title, Double price, List<Language> languages, List<Language> subtitles, List<Category> categories) {
+    public static Course createCourse(String title, Double price, Set<Language> languages, Set<Language> subtitles, List<Category> categories) {
         Course course = courseBuilder
                 .buildTitle(title)
                 .buildPrice(price)

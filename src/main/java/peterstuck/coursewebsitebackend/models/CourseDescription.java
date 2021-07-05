@@ -7,7 +7,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -23,13 +26,17 @@ public class CourseDescription {
 
     @Column
     @ApiModelProperty(notes = "course duration in hours", required = true)
-    private double duration;
+    @NotNull(message = "Duration is mandatory.")
+    private Double duration;
 
     @Column
     @ApiModelProperty(notes = "course sneak peak", required = true)
+    @NotBlank(message = "Short description is mandatory.")
+    @Size(max = 200, message = "Short description length should not be greater than 200 characters.")
     private String shortDescription;
 
     @Column
+    @Size(max = 500, message = "Short description length should not be greater than 500 characters.")
     private String longDescription;
 
     @ElementCollection(fetch = FetchType.LAZY)
@@ -41,11 +48,5 @@ public class CourseDescription {
     @Column
     @ApiModelProperty(notes = "additional pre-requirements info for students")
     private List<String> requirements;
-
-    public CourseDescription(double duration, String shortDescription, String longDescription) {
-        this.duration = duration;
-        this.shortDescription = shortDescription;
-        this.longDescription = longDescription;
-    }
 
 }

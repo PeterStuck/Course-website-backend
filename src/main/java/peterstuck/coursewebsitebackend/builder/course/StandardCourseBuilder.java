@@ -1,9 +1,10 @@
-package peterstuck.coursewebsitebackend.builder;
+package peterstuck.coursewebsitebackend.builder.course;
 
 import peterstuck.coursewebsitebackend.models.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 public class StandardCourseBuilder implements CourseBuilder {
 
@@ -28,14 +29,14 @@ public class StandardCourseBuilder implements CourseBuilder {
     }
 
     @Override
-    public CourseBuilder buildLanguages(List<Language> languages) {
+    public CourseBuilder buildLanguages(Set<Language> languages) {
         course.setLanguages(languages);
 
         return this;
     }
 
     @Override
-    public CourseBuilder buildSubtitles(List<Language> subtitles) {
+    public CourseBuilder buildSubtitles(Set<Language> subtitles) {
         course.setSubtitles(subtitles);
 
         return this;

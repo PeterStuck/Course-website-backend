@@ -12,12 +12,17 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
-import peterstuck.coursewebsitebackend.factory.CourseFactory;
+import peterstuck.coursewebsitebackend.factory.course.CourseFactory;
+import peterstuck.coursewebsitebackend.factory.course_description.CourseDescriptionFactory;
 import peterstuck.coursewebsitebackend.models.Category;
 import peterstuck.coursewebsitebackend.models.Course;
 import peterstuck.coursewebsitebackend.repositories.CourseRepository;
+import peterstuck.coursewebsitebackend.utils.JsonFilter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -45,21 +50,42 @@ class CourseResourceTest {
 
     @BeforeEach
     void setUp() {
+        initializeTestCategories();
+
+        initializeTestCourseList();
+
+        initializeTestCourse();
+    }
+
+    private void initializeTestCategories() {
         testCategories = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             var cat = new Category("CATEGORY " + i, 0);
             cat.setId(i + 1);
             testCategories.add(cat);
         }
+    }
 
+    private void initializeTestCourseList() {
         testCourses = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             var course = CourseFactory.createCourse("TEST " + i, Math.max(i, 1.0));
+            course.setCourseDescription(CourseDescriptionFactory.createCourseDescription(
+                    i + 0.1,
+                    "short",
+                    "long",
+                    Collections.emptyList(),
+                    Collections.emptyList()
+            ));
             course.setCategories(testCategories);
             testCourses.add(course);
         }
+    }
 
-        testCourse = CourseFactory.createCourse("TEST", 10.0);
+    private void initializeTestCourse() {
+        testCourse = CourseFactory.createCourse("VALID TEST TITLE", 10.0);
+        testCourse.setCategories(testCategories);
+        testCourse.setCourseDescription(CourseDescriptionFactory.createCourseDescription(10.5, "short"));
     }
 
     @Test
@@ -195,7 +221,7 @@ class CourseResourceTest {
         var updatedTestCourse = cloneCourse(testCourse);
         updatedTestCourse.setTitle("NEW TITLE");
 
-        makePostPutCourseRequest(BASE_PATH + "/1", updatedTestCourse, status().isOk());
+        makePutCourseRequest(BASE_PATH + "/1", updatedTestCourse, status().isOk());
 
         verify(repository).findById(1);
         verify(repository).save(testCourse);
@@ -218,12 +244,12 @@ class CourseResourceTest {
                 .andReturn().getResponse();
     }
 
-    private void makePostPutCourseRequest(String path, Course content, ResultMatcher expectedStatus) throws Exception {
+    private void makePutCourseRequest(String path, Course content, ResultMatcher expectedStatus) throws Exception {
         mvc.perform(
                 put(path)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(toJson(content)
-                    ))
+                    .content(JsonFilter.castObjectToJsonString(content, "CourseFilter", null))
+                    )
                 .andExpect(expectedStatus);
     }
 
@@ -231,8 +257,8 @@ class CourseResourceTest {
         return mvc.perform(
                 post(CourseResourceTest.BASE_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(toJson(content)
-                        ))
+                        .content(JsonFilter.castObjectToJsonString(content, "CourseFilter", null))
+                )
                 .andExpect(expectedStatus)
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andReturn().getResponse();
@@ -240,19 +266,6 @@ class CourseResourceTest {
 
     private ObjectMapper objectMapper() {
         return new ObjectMapper();
-    }
-
-    // TODO fix FilterProvider exception with Jackson
-    private String toJson(Course course) {
-        return "{\n" +
-                "    \"id\": \""+ course.getId() +"\",\n" +
-                "    \"title\": \""+ course.getTitle() +"\",\n" +
-                "    \"languages\":" + course.getLanguages() + ",\n" +
-                "    \"subtitles\": " + course.getSubtitles() + ",\n" +
-                "    \"categories\": " + course.getCategories() + ",\n" +
-                "    \"lastUpdate\": " + course.getLastUpdate() + ",\n" +
-                "    \"price\": " + course.getPrice() + "\n" +
-                "}";
     }
     
     private Course cloneCourse(Course original) {

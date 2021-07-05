@@ -1,8 +1,9 @@
-package peterstuck.coursewebsitebackend.builder;
+package peterstuck.coursewebsitebackend.builder.course;
 
 import peterstuck.coursewebsitebackend.models.*;
 
 import java.util.List;
+import java.util.Set;
 
 public interface CourseBuilder {
 
@@ -10,9 +11,9 @@ public interface CourseBuilder {
 
     CourseBuilder buildRates(List<Double> rates);
 
-    CourseBuilder buildLanguages(List<Language> languages);
+    CourseBuilder buildLanguages(Set<Language> languages);
 
-    CourseBuilder buildSubtitles(List<Language> subtitles);
+    CourseBuilder buildSubtitles(Set<Language> subtitles);
 
     CourseBuilder buildCategories(List<Category> categories);
 
