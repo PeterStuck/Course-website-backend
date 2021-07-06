@@ -7,13 +7,16 @@ import java.util.*;
 
 public interface CategoryService {
 
+    /**
+     * Main categories with 0 as parent category ID haven't got parent category.
+     */
     List<Category> getMainCategories();
 
     List<Category> getChildCategories(int parentCategoryId);
 
     Category save(Category category);
 
-    Category update(Category updated) throws CategoryNotFoundException;
+    Category update(int categoryId, Category updated) throws CategoryNotFoundException;
 
     void delete(int categoryId) throws CategoryNotFoundException;
 

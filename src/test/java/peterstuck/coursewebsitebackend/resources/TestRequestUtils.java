@@ -1,4 +1,4 @@
-package peterstuck.coursewebsitebackend;
+package peterstuck.coursewebsitebackend.resources;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,10 +32,10 @@ public class TestRequestUtils {
         mapper = new ObjectMapper();
     }
 
-    public List<?> makeRequestToGetItems(String path) throws Exception {
+    public List<?> makeRequestToGetItems(String path, ResultMatcher expectedStatus) throws Exception {
         MockHttpServletResponse response =  mvc.perform(get(path)
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(expectedStatus)
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andReturn().getResponse();
 
@@ -57,12 +57,18 @@ public class TestRequestUtils {
                 .andReturn().getResponse();
     }
 
-    public MockHttpServletResponse makePostRequest(String path, Course content, ResultMatcher expectedStatus) throws Exception {
+    public MockHttpServletResponse makePostRequest(String path, Object content, ResultMatcher expectedStatus) throws Exception {
         return mvc.perform(post(path)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(JsonFilter.castObjectToJsonString(content, FILTER_NAME, null)))
                 .andExpect(expectedStatus)
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse();
+    }
+
+    public MockHttpServletResponse makeDeleteRequest(String path, ResultMatcher expectedStatus) throws Exception {
+        return mvc.perform(delete(path))
+                .andExpect(expectedStatus)
                 .andReturn().getResponse();
     }
 

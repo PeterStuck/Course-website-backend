@@ -14,7 +14,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @ControllerAdvice
-@Order(Ordered.HIGHEST_PRECEDENCE)
 public class CourseAdvisor extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(CourseNotFoundException.class)

@@ -7,7 +7,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-import peterstuck.coursewebsitebackend.TestRequestUtils;
+import peterstuck.coursewebsitebackend.resources.TestRequestUtils;
 import peterstuck.coursewebsitebackend.factory.course.CourseFactory;
 import peterstuck.coursewebsitebackend.factory.course_description.CourseDescriptionFactory;
 import peterstuck.coursewebsitebackend.models.Category;
@@ -95,7 +95,7 @@ class CourseResourceTest {
     void givenCoursesWhenGetCoursesThenStatus200AndListOfExistingCourses() throws Exception {
         when(repository.findAll()).thenReturn(testCourses);
 
-        List<Course> courses = (List<Course>) tru.makeRequestToGetItems(BASE_PATH);
+        List<Course> courses = (List<Course>) tru.makeRequestToGetItems(BASE_PATH, status().isOk());
 
         verify(repository).findAll();
 
@@ -105,8 +105,8 @@ class CourseResourceTest {
     }
 
     @Test
-    void whenNoCoursesPresentReturnEmptyListAndStatus200() throws Exception {
-        assertThat(tru.makeRequestToGetItems(BASE_PATH), hasSize(0));
+    void whenNoCoursesPresentReturnEmptyListAndStatus204() throws Exception {
+        assertThat(tru.makeRequestToGetItems(BASE_PATH, status().isNoContent()), hasSize(0));
     }
 
     @Test
@@ -116,7 +116,7 @@ class CourseResourceTest {
         when(repository.findAll()).thenReturn(testCourses);
 
         String keyword = "KEYWORD";
-        List<Course> filteredCourses = (List<Course>) tru.makeRequestToGetItems(BASE_PATH + "?keyword=" + keyword);
+        List<Course> filteredCourses = (List<Course>) tru.makeRequestToGetItems(BASE_PATH + "?keyword=" + keyword, status().isOk());
 
         assertThat(filteredCourses, hasSize(2));
         assertThat(filteredCourses.get(0).getTitle(), equalTo("TEST WITH KEYWORD"));
@@ -145,9 +145,9 @@ class CourseResourceTest {
     }
 
     @Test
-    void whenNoCoursesWithCategoryReturnEmptyListWithStatus200() throws Exception {
+    void whenNoCoursesWithCategoryReturnEmptyListWithStatus204() throws Exception {
         when(repository.findAll()).thenReturn(testCourses);
-        List<Course> courses = (List<Course>) tru.makeRequestToGetItems(BASE_PATH + "/category/999");
+        List<Course> courses = (List<Course>) tru.makeRequestToGetItems(BASE_PATH + "/category/999", status().isNoContent());
 
         verify(repository).findAll();
         assertThat(courses, hasSize(0));
@@ -158,7 +158,7 @@ class CourseResourceTest {
         testCourses.get(0).setCategories(Collections.emptyList());
         when(repository.findAll()).thenReturn(testCourses);
 
-        List<Course> courses = (List<Course>) tru.makeRequestToGetItems(BASE_PATH + "/category/1");
+        List<Course> courses = (List<Course>) tru.makeRequestToGetItems(BASE_PATH + "/category/1", status().isOk());
 
         assertThat(courses, hasSize(2));
         assertThat(courses.get(0).getTitle(), not(equalTo(testCourses.get(0).getTitle())));
@@ -171,7 +171,7 @@ class CourseResourceTest {
         when(repository.findAll()).thenReturn(testCourses);
 
         String keyword = "KeYwoRD";
-        List<Course> courses = (List<Course>) tru.makeRequestToGetItems(BASE_PATH + "/category/1?keyword=" + keyword);
+        List<Course> courses = (List<Course>) tru.makeRequestToGetItems(BASE_PATH + "/category/1?keyword=" + keyword, status().isOk());
         assertThat(courses, hasSize(2));
         assertThat(courses.get(0).getTitle(), equalTo("Course with keyword 1"));
     }
@@ -201,8 +201,7 @@ class CourseResourceTest {
                 return Optional.ofNullable(testCourse);
         });
 
-        mvc.perform(delete(BASE_PATH + "/1"))
-                .andExpect(status().isOk());
+        tru.makeDeleteRequest(BASE_PATH + "/1", status().isOk());
 
         verify(repository).delete(testCourse);
         assertThat(repository.findAll(), hasSize(3));
@@ -210,8 +209,7 @@ class CourseResourceTest {
 
     @Test
     void shouldReturnStatus404WhenCourseNotFound() throws Exception {
-        mvc.perform(delete(BASE_PATH + "/1"))
-                .andExpect(status().isNotFound());
+        tru.makeDeleteRequest(BASE_PATH + "/1", status().isNotFound());
     }
 
     @Test

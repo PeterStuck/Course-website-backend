@@ -34,8 +34,11 @@ public class CourseResource {
     private final String FILTER_NAME = "CourseFilter";
 
     @GetMapping
-    @ApiOperation(value = "returns all courses", notes = "When keyword param is provided it will also filter courses with keyword in title.")
-    public List<Course> getAllCourses(
+    @ApiOperation(value = "returns all courses", notes = """
+        When keyword param is provided it will also filter courses with keyword in title.
+        Return status 200 when courses where successfully returned, 204 when no courses are available.
+        """)
+    public ResponseEntity<Object> getAllCourses(
             @ApiParam(value = "additionally searches courses by titles containing keyword when provided")
             @RequestParam(required = false) String keyword) throws JsonProcessingException {
         List<Course> courses = service.findAll();
@@ -45,7 +48,7 @@ public class CourseResource {
                     .collect(Collectors.toList());
         }
 
-        return (List<Course>) JsonFilter.filterFields(courses, FILTER_NAME, new String[] { "courseDescription" });
+        return getResponseAndStatus((List<Course>) JsonFilter.filterFields(courses, FILTER_NAME, new String[] { "courseDescription" }));
     }
 
     @GetMapping("/{id}")
@@ -57,8 +60,11 @@ public class CourseResource {
     }
 
     @GetMapping("/category/{categoryId}")
-    @ApiOperation(value = "returns courses with given category ID", notes = "When keyword param is provided it will also filter courses with keyword in title.")
-    public List<Course> getCoursesByCategory(
+    @ApiOperation(value = "returns courses with given category ID", notes = """
+        When keyword param is provided it will also filter courses with keyword in title.
+        Return status 200 when courses where successfully returned, 204 when no courses are available.
+        """)
+    public ResponseEntity<Object> getCoursesByCategory(
             @PathVariable int categoryId,
             @ApiParam(value = "additionally searches courses by titles containing keyword when provided")
             @RequestParam(required = false) String keyword
@@ -74,7 +80,7 @@ public class CourseResource {
                     .collect(Collectors.toList());
         }
 
-        return (List<Course>) JsonFilter.filterFields(courses, FILTER_NAME, new String[] { "courseDescription" });
+        return getResponseAndStatus((List<Course>) JsonFilter.filterFields(courses, FILTER_NAME, new String[] { "courseDescription" }));
     }
 
     private boolean checkCourseTitleContainsKeyword(Course course, String keyword) {
@@ -87,15 +93,22 @@ public class CourseResource {
                 .anyMatch(category -> category.getId() == categoryId);
     }
 
+    private ResponseEntity<Object> getResponseAndStatus(List<Course> courses) {
+        return new ResponseEntity<>(
+                courses,
+                (courses.size() > 0 ? HttpStatus.OK : HttpStatus.NO_CONTENT)
+        );
+    }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(value = "adds new course", notes = "Adds new course only when course object is valid.")
-    public ResponseEntity<Object> addCourse(
+    public Course addCourse(
             @ApiParam(value = "new course object, should provide basic information about itself and category/ies", required = true)
             @Valid @RequestBody Course course) throws JsonProcessingException {
         service.save(course);
 
-        return new ResponseEntity<>(JsonFilter.filterFields(course, FILTER_NAME, null), HttpStatus.CREATED);
+        return (Course) JsonFilter.filterFields(course, FILTER_NAME, null);
     }
 
     @PutMapping("/{id}")

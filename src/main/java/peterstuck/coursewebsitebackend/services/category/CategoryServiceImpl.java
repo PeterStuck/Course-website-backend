@@ -18,9 +18,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    /**
-     * Main categories with 0 as parent category ID haven't got parent category.
-     */
     public List<Category> getMainCategories() {
         return repository.findAll().stream()
                 .filter(category -> category.getParentCategoryId() == 0)
@@ -43,8 +40,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public Category update(Category updated) throws CategoryNotFoundException {
-        Category category = getCategoryOrThrowException(updated.getId());
+    public Category update(int categoryId, Category updated) throws CategoryNotFoundException {
+        Category category = getCategoryOrThrowException(categoryId);
         updateCategory(category, updated);
         save(category);
 
@@ -70,6 +67,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     private Category getCategoryOrThrowException(int categoryId) throws CategoryNotFoundException {
         return repository.findById(categoryId)
-                .orElseThrow(() -> new CategoryNotFoundException("Category with id: " + categoryId + " not exists."));
+                .orElseThrow(() -> new CategoryNotFoundException("Category with id: " + categoryId + " not found."));
     }
 }
