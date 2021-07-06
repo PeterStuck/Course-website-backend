@@ -1,24 +1,19 @@
 package peterstuck.coursewebsitebackend.resources.course;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
+import peterstuck.coursewebsitebackend.TestRequestUtils;
 import peterstuck.coursewebsitebackend.factory.course.CourseFactory;
 import peterstuck.coursewebsitebackend.factory.course_description.CourseDescriptionFactory;
 import peterstuck.coursewebsitebackend.models.Category;
 import peterstuck.coursewebsitebackend.models.Course;
 import peterstuck.coursewebsitebackend.models.CourseDescription;
 import peterstuck.coursewebsitebackend.repositories.CourseRepository;
-import peterstuck.coursewebsitebackend.utils.JsonFilter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,8 +24,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -52,10 +46,14 @@ class CourseResourceTest {
             "long"
     );
 
+    private TestRequestUtils tru;
+
     private static final String BASE_PATH = "/api/courses";
 
     @BeforeEach
     void setUp() {
+        tru = new TestRequestUtils(Course.class, mvc, "CourseFilter");
+
         initializeTestCategories();
 
         initializeTestCourseList();
@@ -97,7 +95,7 @@ class CourseResourceTest {
     void givenCoursesWhenGetCoursesThenStatus200AndListOfExistingCourses() throws Exception {
         when(repository.findAll()).thenReturn(testCourses);
 
-        List<Course> courses = makeRequestToGetCourses(BASE_PATH);
+        List<Course> courses = (List<Course>) tru.makeRequestToGetItems(BASE_PATH);
 
         verify(repository).findAll();
 
@@ -108,9 +106,7 @@ class CourseResourceTest {
 
     @Test
     void whenNoCoursesPresentReturnEmptyListAndStatus200() throws Exception {
-        List<Course> courses = makeRequestToGetCourses(BASE_PATH);
-
-        assertThat(courses, hasSize(0));
+        assertThat(tru.makeRequestToGetItems(BASE_PATH), hasSize(0));
     }
 
     @Test
@@ -120,7 +116,7 @@ class CourseResourceTest {
         when(repository.findAll()).thenReturn(testCourses);
 
         String keyword = "KEYWORD";
-        List<Course> filteredCourses = makeRequestToGetCourses(BASE_PATH + "?keyword=" + keyword);
+        List<Course> filteredCourses = (List<Course>) tru.makeRequestToGetItems(BASE_PATH + "?keyword=" + keyword);
 
         assertThat(filteredCourses, hasSize(2));
         assertThat(filteredCourses.get(0).getTitle(), equalTo("TEST WITH KEYWORD"));
@@ -132,8 +128,8 @@ class CourseResourceTest {
         long id = 1L;
         when(repository.findById(id)).thenReturn(Optional.ofNullable(testCourse));
 
-        var response = makeRequestToGetSingleCourse(BASE_PATH + "/" + id, status().isOk());
-        Course course = objectMapper().readValue(response.getContentAsString(), Course.class);
+        var response = tru.makeRequestToGetSingleItem(BASE_PATH + "/" + id, status().isOk());
+        Course course = TestRequestUtils.mapper.readValue(response.getContentAsString(), Course.class);
 
         verify(repository).findById(id);
         assertThat(course.getTitle(), equalTo(testCourse.getTitle()));
@@ -142,7 +138,7 @@ class CourseResourceTest {
 
     @Test
     void whenCourseWithGivenIdNotExistsThenStatus404() throws Exception {
-        var response = makeRequestToGetSingleCourse(BASE_PATH + "/999", status().isNotFound());
+        var response = tru.makeRequestToGetSingleItem(BASE_PATH + "/999", status().isNotFound());
 
         assertThat(response.getContentAsString(), containsString("message"));
         assertThat(response.getContentAsString(), containsString("not found"));
@@ -151,7 +147,7 @@ class CourseResourceTest {
     @Test
     void whenNoCoursesWithCategoryReturnEmptyListWithStatus200() throws Exception {
         when(repository.findAll()).thenReturn(testCourses);
-        List<Course> courses = makeRequestToGetCourses(BASE_PATH + "/category/999");
+        List<Course> courses = (List<Course>) tru.makeRequestToGetItems(BASE_PATH + "/category/999");
 
         verify(repository).findAll();
         assertThat(courses, hasSize(0));
@@ -162,7 +158,7 @@ class CourseResourceTest {
         testCourses.get(0).setCategories(Collections.emptyList());
         when(repository.findAll()).thenReturn(testCourses);
 
-        List<Course> courses = makeRequestToGetCourses(BASE_PATH + "/category/1");
+        List<Course> courses = (List<Course>) tru.makeRequestToGetItems(BASE_PATH + "/category/1");
 
         assertThat(courses, hasSize(2));
         assertThat(courses.get(0).getTitle(), not(equalTo(testCourses.get(0).getTitle())));
@@ -175,8 +171,7 @@ class CourseResourceTest {
         when(repository.findAll()).thenReturn(testCourses);
 
         String keyword = "KeYwoRD";
-        List<Course> courses = makeRequestToGetCourses(BASE_PATH + "/category/1?keyword=" + keyword);
-
+        List<Course> courses = (List<Course>) tru.makeRequestToGetItems(BASE_PATH + "/category/1?keyword=" + keyword);
         assertThat(courses, hasSize(2));
         assertThat(courses.get(0).getTitle(), equalTo("Course with keyword 1"));
     }
@@ -189,8 +184,8 @@ class CourseResourceTest {
             return testCourse;
         });
 
-        var response = makePostCourseRequest(testCourse, status().isCreated());
-        Course course = objectMapper().readValue(response.getContentAsString(), Course.class);
+        var response = tru.makePostRequest(BASE_PATH, testCourse, status().isCreated());
+        Course course = TestRequestUtils.mapper.readValue(response.getContentAsString(), Course.class);
 
         verify(repository).save(any());
         assertThat(course.getTitle(), equalTo(testCourse.getTitle()));
@@ -227,7 +222,7 @@ class CourseResourceTest {
         var updatedTestCourse = cloneCourse(testCourse);
         updatedTestCourse.setTitle("NEW TITLE");
 
-        makePutCourseRequest(BASE_PATH + "/1", updatedTestCourse, status().isOk());
+        tru.makePutRequest(BASE_PATH + "/1", updatedTestCourse, status().isOk());
 
         verify(repository).findById(id);
         verify(repository).save(testCourse);
@@ -237,7 +232,7 @@ class CourseResourceTest {
     @Test
     void shouldReturnErrorMessagesWhenCourseDataIsInvalid() throws Exception {
         var invalidCourse = CourseFactory.createCourse(null, null, null);
-        String response = makePostCourseRequest(invalidCourse, status().isBadRequest()).getContentAsString();
+        String response = tru.makePostRequest(BASE_PATH, invalidCourse, status().isBadRequest()).getContentAsString();
 
         // check name of error fields exist in response
         assertThat(response, containsString("title"));
@@ -257,52 +252,12 @@ class CourseResourceTest {
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus quis vestibulum eros, at porta lorem. Cras tincidunt laoreet diam, vitae placerat metus laoreet sit amet. Nulla eros dui, molestie ac pharetra ut, mattis vitae ex. Etiam eget convallis mauris. Morbi blandit tortor vitae quam mollis, sit amet pellentesque nulla ultrices. Vivamus blandit quam porta, blandit urna vitae, sagittis nisi. Quisque placerat efficitur metus, non fringilla nisi semper sit amet. Vivamus eget tellus in justo ele."
         );
         var invalidCourse = CourseFactory.createCourse("TEST", 0.0, invalidCourseDescription);
-        String response = makePostCourseRequest(invalidCourse, status().isBadRequest()).getContentAsString();
+        String response = tru.makePostRequest(BASE_PATH, invalidCourse, status().isBadRequest()).getContentAsString();
 
         assertThat(response, containsString("Duration is mandatory."));
         assertThat(response, containsString("Short description is mandatory."));
         assertThat(response, containsString("Long description length should not be greater than 500 characters."));
         assertThat(response, containsString("Title should have between 5 and 50 characters."));
-    }
-
-    private List<Course> makeRequestToGetCourses(String path) throws Exception {
-        MockHttpServletResponse response =  mvc.perform(get(path).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andReturn().getResponse();
-
-        return objectMapper().readValue(response.getContentAsString(), new TypeReference<>(){});
-    }
-
-    private MockHttpServletResponse makeRequestToGetSingleCourse(String path, ResultMatcher expectedStatus) throws Exception {
-        return mvc.perform(get(path).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(expectedStatus)
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andReturn().getResponse();
-    }
-
-    private void makePutCourseRequest(String path, Course content, ResultMatcher expectedStatus) throws Exception {
-        mvc.perform(
-                put(path)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(JsonFilter.castObjectToJsonString(content, "CourseFilter", null))
-                    )
-                .andExpect(expectedStatus);
-    }
-
-    private MockHttpServletResponse makePostCourseRequest(Course content, ResultMatcher expectedStatus) throws Exception {
-        return mvc.perform(
-                post(CourseResourceTest.BASE_PATH)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonFilter.castObjectToJsonString(content, "CourseFilter", null))
-                )
-                .andExpect(expectedStatus)
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andReturn().getResponse();
-    }
-
-    private ObjectMapper objectMapper() {
-        return new ObjectMapper();
     }
     
     private Course cloneCourse(Course original) {
