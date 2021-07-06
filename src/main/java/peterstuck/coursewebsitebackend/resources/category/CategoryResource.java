@@ -1,5 +1,8 @@
 package peterstuck.coursewebsitebackend.resources.category;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -13,6 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
+@Api(value = "Category", tags = { "Category" })
 public class CategoryResource {
 
     @Autowired
@@ -20,12 +24,22 @@ public class CategoryResource {
     private CategoryService service;
 
     @GetMapping
+    @ApiOperation(value = "returns main categories", notes = """
+            Main categories are categories without parent category (0 as parent category ID).
+            Returns status 200 (OK) when categories are available, 204 (NO CONTENT) when it's empty list.
+            """)
     public ResponseEntity<List<Category>> getMainCategories() {
         return getResponseAndStatus(service.getMainCategories());
     }
 
     @GetMapping("/{parentCategoryId}")
-    public ResponseEntity<List<Category>> getChildCategories(@PathVariable int parentCategoryId) {
+    @ApiOperation(value = "returns child categories", notes = """
+            Returns child categories based on parent category ID.
+            Returns status 200 (OK) when categories are available, 204 (NO CONTENT) when it's empty list.
+            """)
+    public ResponseEntity<List<Category>> getChildCategories(
+            @ApiParam(required = true)
+            @PathVariable int parentCategoryId) {
         return getResponseAndStatus(service.getChildCategories(parentCategoryId));
     }
 
@@ -38,17 +52,36 @@ public class CategoryResource {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Category createCategory(@RequestBody Category category) {
+    @ApiOperation(value = "creates new category", notes = """
+        Returns status 201 (CREATED) when category was successfully created, 400 (BAD REQUEST) when there's an error in category data.
+        """)
+    public Category createCategory(
+            @ApiParam(value = "valid new Category object", required = true)
+            @RequestBody Category category) {
         return service.save(category);
     }
 
     @PutMapping("/{categoryId}")
-    public Category updateCategory(@PathVariable int categoryId, @RequestBody Category category) throws CategoryNotFoundException {
+    @ApiOperation(value = "updates existing category", notes = """
+            Returns status 200 (OK) when category was updated successfully,
+            400 (BAD REQUEST) when there's an error in category data or 404 when category was not found.
+            """)
+    public Category updateCategory(
+            @ApiParam(value = "id of category that is going to be updated", required = true)
+            @PathVariable int categoryId,
+            @ApiParam(value = "valid Category object with updated data", required = true)
+            @RequestBody Category category) throws CategoryNotFoundException {
         return service.update(categoryId, category);
     }
 
     @DeleteMapping("/{categoryId}")
-    public String deleteCategory(@PathVariable int categoryId) throws CategoryNotFoundException {
+    @ApiOperation(value = "deletes existing category", notes = """
+            Returns status 200 (OK) when category was successfully deleted, 404 when category to delete was not found.
+            Operation available only for page administrator.
+            """)
+    public String deleteCategory(
+            @ApiParam(value = "id of category to delete", required = true)
+            @PathVariable int categoryId) throws CategoryNotFoundException {
         service.delete(categoryId);
         return "Category with id: " + categoryId + " successfully deleted.";
     }

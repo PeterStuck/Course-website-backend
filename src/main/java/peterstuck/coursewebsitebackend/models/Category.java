@@ -24,10 +24,11 @@ public class Category {
     private int id;
 
     @Column
+    @ApiModelProperty(notes = "Name of category", required = true)
     private String name;
 
     @Column(name = "parent_category_id")
-    @ApiModelProperty(notes = "When zero then it's one of main categories")
+    @ApiModelProperty(notes = "When zero then it's a main category", required = true)
     private int parentCategoryId;
 
     @JsonIgnore
