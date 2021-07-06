@@ -1,4 +1,4 @@
-package peterstuck.coursewebsitebackend.services;
+package peterstuck.coursewebsitebackend.services.course;
 
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     @Transactional
-    public Course findById(int id) throws CourseNotFoundException {
+    public Course findById(Long id) throws CourseNotFoundException {
         Course course = repository.findById(id)
                 .orElseThrow(() -> new CourseNotFoundException("Course with id: " + id + " not found!"));
 
@@ -68,16 +68,20 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     @Transactional
-    public Course update(int id, Course updated) throws CourseNotFoundException {
+    public Course update(Long id, Course updated) throws CourseNotFoundException {
         Course course = this.findById(id);
         updateCourse(course, updated);
-        this.save(course);
+        save(course);
 
         return updated;
     }
 
+    /**
+     * It should not be possible to override comments, rates, avgRate, ratesCount
+     * @param original course to update
+     * @param updated course with updated data
+     */
     private void updateCourse(Course original, Course updated) {
-        // user cannot override comments, rates, avgRate, ratesCount
         original.setTitle(updated.getTitle());
         original.setLastUpdate(new Date().getTime());
         original.setSubtitles(updated.getSubtitles());
@@ -88,6 +92,10 @@ public class CourseServiceImpl implements CourseService {
         updateCourseDescription(original.getCourseDescription(), updated.getCourseDescription());
     }
 
+    /**
+     * @param original course description to update
+     * @param updated course description with updated data
+     */
     private void updateCourseDescription(CourseDescription original, CourseDescription updated) {
         original.setDuration(updated.getDuration());
         original.setShortDescription(updated.getShortDescription());
@@ -98,7 +106,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     @Transactional
-    public void delete(int id) throws CourseNotFoundException {
+    public void delete(Long id) throws CourseNotFoundException {
         Course course = this.findById(id);
         repository.delete(course);
     }

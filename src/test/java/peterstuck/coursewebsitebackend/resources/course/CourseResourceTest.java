@@ -1,4 +1,4 @@
-package peterstuck.coursewebsitebackend.resources;
+package peterstuck.coursewebsitebackend.resources.course;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -129,7 +129,7 @@ class CourseResourceTest {
 
     @Test
     void whenCourseWithGivenIdExistsThenReturnCourse() throws Exception {
-        int id = 1;
+        long id = 1L;
         when(repository.findById(id)).thenReturn(Optional.ofNullable(testCourse));
 
         var response = makeRequestToGetSingleCourse(BASE_PATH + "/" + id, status().isOk());
@@ -201,7 +201,7 @@ class CourseResourceTest {
     void shouldDeleteCourseWhenExists() throws Exception {
         testCourses.add(testCourse);
         when(repository.findAll()).thenReturn(testCourses);
-        when(repository.findById(1)).then(invocationOnMock -> {
+        when(repository.findById(1L)).then(invocationOnMock -> {
                 testCourses.remove(testCourse);
                 return Optional.ofNullable(testCourse);
         });
@@ -221,16 +221,17 @@ class CourseResourceTest {
 
     @Test
     void shouldUpdateWhenCourseDataIsValid() throws Exception {
-        testCourse.setId(1);
-        when(repository.findById(1)).thenReturn(Optional.ofNullable(testCourse));
+        long id = 1L;
+        testCourse.setId(id);
+        when(repository.findById(id)).thenReturn(Optional.ofNullable(testCourse));
         var updatedTestCourse = cloneCourse(testCourse);
         updatedTestCourse.setTitle("NEW TITLE");
 
         makePutCourseRequest(BASE_PATH + "/1", updatedTestCourse, status().isOk());
 
-        verify(repository).findById(1);
+        verify(repository).findById(id);
         verify(repository).save(testCourse);
-        assertThat(repository.findById(1).get().getTitle(), equalTo("NEW TITLE"));
+        assertThat(repository.findById(id).get().getTitle(), equalTo("NEW TITLE"));
     }
 
     @Test

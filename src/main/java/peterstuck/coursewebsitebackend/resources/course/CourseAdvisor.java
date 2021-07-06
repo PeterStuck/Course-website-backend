@@ -1,4 +1,4 @@
-package peterstuck.coursewebsitebackend.resources;
+package peterstuck.coursewebsitebackend.resources.course;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;

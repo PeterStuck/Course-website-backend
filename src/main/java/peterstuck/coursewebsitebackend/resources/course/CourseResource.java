@@ -1,4 +1,4 @@
-package peterstuck.coursewebsitebackend.resources;
+package peterstuck.coursewebsitebackend.resources.course;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.annotations.Api;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import peterstuck.coursewebsitebackend.exceptions.CourseNotFoundException;
 import peterstuck.coursewebsitebackend.models.Course;
-import peterstuck.coursewebsitebackend.services.CourseService;
+import peterstuck.coursewebsitebackend.services.course.CourseService;
 import peterstuck.coursewebsitebackend.utils.JsonFilter;
 
 import javax.validation.Valid;
@@ -50,7 +50,7 @@ public class CourseResource {
 
     @GetMapping("/{id}")
     @ApiOperation(value = "returns course with given ID", notes = "When course is not found then returns status 404.")
-    public Course getCourseById(@PathVariable int id) throws CourseNotFoundException, JsonProcessingException {
+    public Course getCourseById(@PathVariable Long id) throws CourseNotFoundException, JsonProcessingException {
         Course course = service.findById(id);
 
         return (Course) JsonFilter.filterFields(course, FILTER_NAME, null);
@@ -105,7 +105,7 @@ public class CourseResource {
                     Returns status 404 when course not found and status 400 when there is problem with updated course data.
                     Endpoint available only for course author and page admin.""")
     public Course updateCourse(
-            @PathVariable int id,
+            @PathVariable Long id,
             @ApiParam(value = "course with updated data", required = true)
             @Valid @RequestBody Course updatedCourse
     ) throws CourseNotFoundException, JsonProcessingException {
@@ -120,7 +120,7 @@ public class CourseResource {
                     Deletes course only when course with given ID exists.
                     Returns status 404 when course not found.
                     Endpoint available only for course author and page admin.""")
-    public String deleteCourse(@PathVariable int id) throws CourseNotFoundException {
+    public String deleteCourse(@PathVariable Long id) throws CourseNotFoundException {
         service.delete(id);
 
         return "Course with ID: " + id + " was successfully deleted.";
