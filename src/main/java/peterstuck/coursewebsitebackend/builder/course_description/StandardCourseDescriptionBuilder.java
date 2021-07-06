@@ -13,7 +13,7 @@ public class StandardCourseDescriptionBuilder implements CourseDescriptionBuilde
     }
 
     @Override
-    public CourseDescriptionBuilder buildDuration(double duration) {
+    public CourseDescriptionBuilder buildDuration(Double duration) {
         description.setDuration(duration);
 
         return this;

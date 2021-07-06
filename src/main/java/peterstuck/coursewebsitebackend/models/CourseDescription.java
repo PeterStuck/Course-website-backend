@@ -36,7 +36,7 @@ public class CourseDescription {
     private String shortDescription;
 
     @Column
-    @Size(max = 500, message = "Short description length should not be greater than 500 characters.")
+    @Size(max = 500, message = "Long description length should not be greater than 500 characters.")
     private String longDescription;
 
     @ElementCollection(fetch = FetchType.LAZY)

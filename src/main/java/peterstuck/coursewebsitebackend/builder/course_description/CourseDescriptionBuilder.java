@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface CourseDescriptionBuilder {
 
-    CourseDescriptionBuilder buildDuration(double duration);
+    CourseDescriptionBuilder buildDuration(Double duration);
 
     CourseDescriptionBuilder buildShortDescription(String shortDesc);
 

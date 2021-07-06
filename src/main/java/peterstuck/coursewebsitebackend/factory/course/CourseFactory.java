@@ -4,6 +4,7 @@ import peterstuck.coursewebsitebackend.builder.course.CourseBuilder;
 import peterstuck.coursewebsitebackend.builder.course.StandardCourseBuilder;
 import peterstuck.coursewebsitebackend.models.Category;
 import peterstuck.coursewebsitebackend.models.Course;
+import peterstuck.coursewebsitebackend.models.CourseDescription;
 import peterstuck.coursewebsitebackend.models.Language;
 
 import java.util.List;
@@ -13,32 +14,22 @@ public class CourseFactory {
 
     private static CourseBuilder courseBuilder = new StandardCourseBuilder();
 
-    public static Course createCourse(String title, Double price) {
+    public static Course createCourse(String title, Double price, CourseDescription description) {
         Course course = courseBuilder
                 .buildTitle(title)
                 .buildPrice(price)
+                .buildCourseDescription(description)
                 .getResult();
         courseBuilder.restore();
 
         return course;
     }
 
-    public static Course createCourse(String title, Double price, Set<Language> languages, Set<Language> subtitles) {
+    public static Course createCourse(String title, Double price, CourseDescription description, List<Category> categories) {
         Course course = courseBuilder
                 .buildTitle(title)
                 .buildPrice(price)
-                .buildLanguages(languages)
-                .buildSubtitles(subtitles)
-                .getResult();
-        courseBuilder.restore();
-
-        return course;
-    }
-
-    public static Course createCourse(String title, Double price, List<Category> categories) {
-        Course course = courseBuilder
-                .buildTitle(title)
-                .buildPrice(price)
+                .buildCourseDescription(description)
                 .buildCategories(categories)
                 .getResult();
         courseBuilder.restore();
@@ -46,10 +37,11 @@ public class CourseFactory {
         return course;
     }
 
-    public static Course createCourse(String title, Double price, Set<Language> languages, Set<Language> subtitles, List<Category> categories) {
+    public static Course createCourse(String title, Double price, CourseDescription description, Set<Language> languages, Set<Language> subtitles, List<Category> categories) {
         Course course = courseBuilder
                 .buildTitle(title)
                 .buildPrice(price)
+                .buildCourseDescription(description)
                 .buildLanguages(languages)
                 .buildSubtitles(subtitles)
                 .buildCategories(categories)

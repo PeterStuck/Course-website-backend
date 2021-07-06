@@ -72,7 +72,7 @@ public class Course {
     @JoinColumn(name = "course_description_id")
     @ApiModelProperty(required = true)
     @Valid
-    @NotNull(message = "Course must have a description")
+    @NotNull(message = "Course must have a description.")
     @JsonIgnoreProperties(value = {"course", "hibernateLazyInitializer"})
     private CourseDescription courseDescription;
 

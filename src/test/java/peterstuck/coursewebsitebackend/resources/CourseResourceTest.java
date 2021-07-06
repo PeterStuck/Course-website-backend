@@ -16,6 +16,7 @@ import peterstuck.coursewebsitebackend.factory.course.CourseFactory;
 import peterstuck.coursewebsitebackend.factory.course_description.CourseDescriptionFactory;
 import peterstuck.coursewebsitebackend.models.Category;
 import peterstuck.coursewebsitebackend.models.Course;
+import peterstuck.coursewebsitebackend.models.CourseDescription;
 import peterstuck.coursewebsitebackend.repositories.CourseRepository;
 import peterstuck.coursewebsitebackend.utils.JsonFilter;
 
@@ -45,6 +46,11 @@ class CourseResourceTest {
     private List<Course> testCourses;
     private List<Category> testCategories;
     private Course testCourse;
+    private CourseDescription testCourseDescription = CourseDescriptionFactory.createCourseDescription(
+            0.1,
+            "short",
+            "long"
+    );
 
     private static final String BASE_PATH = "/api/courses";
 
@@ -69,23 +75,22 @@ class CourseResourceTest {
     private void initializeTestCourseList() {
         testCourses = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
-            var course = CourseFactory.createCourse("TEST " + i, Math.max(i, 1.0));
-            course.setCourseDescription(CourseDescriptionFactory.createCourseDescription(
-                    i + 0.1,
-                    "short",
-                    "long",
-                    Collections.emptyList(),
-                    Collections.emptyList()
-            ));
-            course.setCategories(testCategories);
+            var course = CourseFactory.createCourse(
+                "TEST " + i,
+                Math.max(i, 1.0),
+                testCourseDescription,
+                testCategories);
             testCourses.add(course);
         }
     }
 
     private void initializeTestCourse() {
-        testCourse = CourseFactory.createCourse("VALID TEST TITLE", 10.0);
-        testCourse.setCategories(testCategories);
-        testCourse.setCourseDescription(CourseDescriptionFactory.createCourseDescription(10.5, "short"));
+        testCourse = CourseFactory.createCourse(
+                "VALID TEST TITLE",
+                10.0,
+                testCourseDescription,
+                testCategories
+        );
     }
 
     @Test
@@ -110,8 +115,8 @@ class CourseResourceTest {
 
     @Test
     void whenKeywordIsPassedShouldReturnFilteredCourses() throws Exception {
-        testCourses.add(CourseFactory.createCourse("TEST WITH KEYWORD", 5.0));
-        testCourses.add(CourseFactory.createCourse("TEST WITH KEYWORD 2", 4.5));
+        testCourses.add(CourseFactory.createCourse("TEST WITH KEYWORD", 5.0, testCourseDescription));
+        testCourses.add(CourseFactory.createCourse("TEST WITH KEYWORD 2", 4.5, testCourseDescription));
         when(repository.findAll()).thenReturn(testCourses);
 
         String keyword = "KEYWORD";
@@ -165,8 +170,8 @@ class CourseResourceTest {
 
     @Test
     void shouldReturnListOfCoursesFilteredByCategoryAndKeywordWhenKeywordProvided() throws Exception {
-        testCourses.add(CourseFactory.createCourse("Course with keyword 1", 1.0, testCategories));
-        testCourses.add(CourseFactory.createCourse("Course with keyword 2", 2.0, testCategories));
+        testCourses.add(CourseFactory.createCourse("Course with keyword 1", 1.0, testCourseDescription, testCategories));
+        testCourses.add(CourseFactory.createCourse("Course with keyword 2", 2.0, testCourseDescription, testCategories));
         when(repository.findAll()).thenReturn(testCourses);
 
         String keyword = "KeYwoRD";
@@ -226,6 +231,37 @@ class CourseResourceTest {
         verify(repository).findById(1);
         verify(repository).save(testCourse);
         assertThat(repository.findById(1).get().getTitle(), equalTo("NEW TITLE"));
+    }
+
+    @Test
+    void shouldReturnErrorMessagesWhenCourseDataIsInvalid() throws Exception {
+        var invalidCourse = CourseFactory.createCourse(null, null, null);
+        String response = makePostCourseRequest(invalidCourse, status().isBadRequest()).getContentAsString();
+
+        // check name of error fields exist in response
+        assertThat(response, containsString("title"));
+        assertThat(response, containsString("price"));
+        assertThat(response, containsString("courseDescription"));
+        // check that correct error messages are returning with response
+        assertThat(response, containsString("Title is mandatory."));
+        assertThat(response, containsString("Price is mandatory."));
+        assertThat(response, containsString("Course must have a description."));
+    }
+
+    @Test
+    void shouldReturnErrorMessagesWhenCourseDescriptionDataIsInvalid() throws Exception {
+        var invalidCourseDescription = CourseDescriptionFactory.createCourseDescription(
+                null,
+                null,
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus quis vestibulum eros, at porta lorem. Cras tincidunt laoreet diam, vitae placerat metus laoreet sit amet. Nulla eros dui, molestie ac pharetra ut, mattis vitae ex. Etiam eget convallis mauris. Morbi blandit tortor vitae quam mollis, sit amet pellentesque nulla ultrices. Vivamus blandit quam porta, blandit urna vitae, sagittis nisi. Quisque placerat efficitur metus, non fringilla nisi semper sit amet. Vivamus eget tellus in justo ele."
+        );
+        var invalidCourse = CourseFactory.createCourse("TEST", 0.0, invalidCourseDescription);
+        String response = makePostCourseRequest(invalidCourse, status().isBadRequest()).getContentAsString();
+
+        assertThat(response, containsString("Duration is mandatory."));
+        assertThat(response, containsString("Short description is mandatory."));
+        assertThat(response, containsString("Long description length should not be greater than 500 characters."));
+        assertThat(response, containsString("Title should have between 5 and 50 characters."));
     }
 
     private List<Course> makeRequestToGetCourses(String path) throws Exception {
