@@ -12,6 +12,7 @@ import peterstuck.coursewebsitebackend.exceptions.CategoryNotFoundException;
 import peterstuck.coursewebsitebackend.models.Category;
 import peterstuck.coursewebsitebackend.services.category.CategoryService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -57,7 +58,7 @@ public class CategoryResource {
         """)
     public Category createCategory(
             @ApiParam(value = "valid new Category object", required = true)
-            @RequestBody Category category) {
+            @Valid @RequestBody Category category) {
         return service.save(category);
     }
 
@@ -70,7 +71,7 @@ public class CategoryResource {
             @ApiParam(value = "id of category that is going to be updated", required = true)
             @PathVariable int categoryId,
             @ApiParam(value = "valid Category object with updated data", required = true)
-            @RequestBody Category category) throws CategoryNotFoundException {
+            @Valid @RequestBody Category category) throws CategoryNotFoundException {
         return service.update(categoryId, category);
     }
 

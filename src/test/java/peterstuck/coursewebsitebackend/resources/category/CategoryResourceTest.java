@@ -140,12 +140,25 @@ class CategoryResourceTest {
     }
 
     @Test
-    void shouldReturnStatus404WhenCategoryNotFoundDuringDeleteRequest() throws Exception {
-        var response = tru.makeDeleteRequest(BASE_PATH + "/" + 123, status().isNotFound());
+    void whenInvalidCategoryObjectPassedThenReturnStatus400AndFieldErrorMessages() throws Exception {
+        Category invalidCategory = new Category("", -1);
+        String response = tru.makePostRequest(BASE_PATH, invalidCategory, status().isBadRequest()).getContentAsString();
 
-        assertThat(response.getContentAsString(), containsString("Category with id: 123 not found."));
-        assertThat(response.getContentAsString(), containsString("message"));
-        assertThat(response.getContentAsString(), containsString("timestamp"));
+        // check field names with errors are returned
+        assertThat(response, containsString("name"));
+        assertThat(response, containsString("parentCategoryId"));
+        // check error messages are returned
+        assertThat(response, containsString("Parent category ID cannot be negative."));
+        assertThat(response, containsString("Category name should have at least 4 characters."));
+    }
+
+    @Test
+    void shouldReturnStatus404WhenCategoryNotFoundDuringDeleteRequest() throws Exception {
+        String response = tru.makeDeleteRequest(BASE_PATH + "/" + 123, status().isNotFound()).getContentAsString();
+
+        assertThat(response, containsString("Category with id: 123 not found."));
+        assertThat(response, containsString("message"));
+        assertThat(response, containsString("timestamp"));
     }
 
 }

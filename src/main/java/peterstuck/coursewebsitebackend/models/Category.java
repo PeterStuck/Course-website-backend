@@ -8,6 +8,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 import java.util.*;
 
 @Data
@@ -24,10 +28,12 @@ public class Category {
     private int id;
 
     @Column
+    @Size(min = 4, message = "Category name should have at least 4 characters.")
     @ApiModelProperty(notes = "Name of category", required = true)
     private String name;
 
     @Column(name = "parent_category_id")
+    @Min(value = 0, message = "Parent category ID cannot be negative.")
     @ApiModelProperty(notes = "When zero then it's a main category", required = true)
     private int parentCategoryId;
 
