@@ -1,6 +1,6 @@
 package peterstuck.coursewebsitebackend.builder.course;
 
-import peterstuck.coursewebsitebackend.models.*;
+import peterstuck.coursewebsitebackend.models.course.*;
 
 import java.util.List;
 import java.util.Set;

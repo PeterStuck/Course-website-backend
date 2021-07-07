@@ -10,9 +10,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import peterstuck.coursewebsitebackend.resources.TestRequestUtils;
 import peterstuck.coursewebsitebackend.factory.course.CourseFactory;
 import peterstuck.coursewebsitebackend.factory.course_description.CourseDescriptionFactory;
-import peterstuck.coursewebsitebackend.models.Category;
-import peterstuck.coursewebsitebackend.models.Course;
-import peterstuck.coursewebsitebackend.models.CourseDescription;
+import peterstuck.coursewebsitebackend.models.course.Category;
+import peterstuck.coursewebsitebackend.models.course.Course;
+import peterstuck.coursewebsitebackend.models.course.CourseDescription;
 import peterstuck.coursewebsitebackend.repositories.CourseRepository;
 
 import java.util.ArrayList;

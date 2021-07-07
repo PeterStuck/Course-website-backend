@@ -1,7 +1,7 @@
 package peterstuck.coursewebsitebackend.services.course;
 
 import peterstuck.coursewebsitebackend.exceptions.CourseNotFoundException;
-import peterstuck.coursewebsitebackend.models.Course;
+import peterstuck.coursewebsitebackend.models.course.Course;
 
 import java.util.List;
 

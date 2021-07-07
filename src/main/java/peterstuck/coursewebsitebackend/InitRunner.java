@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import peterstuck.coursewebsitebackend.factory.course.CourseFactory;
 import peterstuck.coursewebsitebackend.factory.course_description.CourseDescriptionFactory;
-import peterstuck.coursewebsitebackend.models.Category;
+import peterstuck.coursewebsitebackend.models.course.Category;
 import peterstuck.coursewebsitebackend.repositories.CategoryRepository;
 import peterstuck.coursewebsitebackend.repositories.CourseRepository;
 

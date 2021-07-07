@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import peterstuck.coursewebsitebackend.exceptions.CourseNotFoundException;
-import peterstuck.coursewebsitebackend.models.Course;
+import peterstuck.coursewebsitebackend.models.course.Course;
 import peterstuck.coursewebsitebackend.services.course.CourseService;
 import peterstuck.coursewebsitebackend.utils.JsonFilter;
 

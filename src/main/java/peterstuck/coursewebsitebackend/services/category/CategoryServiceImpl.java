@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peterstuck.coursewebsitebackend.exceptions.CategoryNotFoundException;
-import peterstuck.coursewebsitebackend.models.Category;
+import peterstuck.coursewebsitebackend.models.course.Category;
 import peterstuck.coursewebsitebackend.repositories.CategoryRepository;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package peterstuck.coursewebsitebackend.models;
+package peterstuck.coursewebsitebackend.models.course;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import peterstuck.coursewebsitebackend.models.user.User;
 
 import javax.persistence.*;
 import javax.validation.Valid;
@@ -75,6 +76,10 @@ public class Course {
     @NotNull(message = "Course must have a description.")
     @JsonIgnoreProperties(value = {"course", "hibernateLazyInitializer"})
     private CourseDescription courseDescription;
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "purchasedCourses")
+    private List<User> users;
 
     @JsonIgnore
     @ElementCollection(fetch = FetchType.LAZY)

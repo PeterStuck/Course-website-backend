@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import peterstuck.coursewebsitebackend.exceptions.CategoryNotFoundException;
-import peterstuck.coursewebsitebackend.models.Category;
+import peterstuck.coursewebsitebackend.models.course.Category;
 import peterstuck.coursewebsitebackend.services.category.CategoryService;
 
 import javax.validation.Valid;
@@ -55,6 +55,7 @@ public class CategoryResource {
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(value = "creates new category", notes = """
         Returns status 201 (CREATED) when category was successfully created, 400 (BAD REQUEST) when there's an error in category data.
+        Operation available only for page administrator.
         """)
     public Category createCategory(
             @ApiParam(value = "valid new Category object", required = true)
@@ -66,6 +67,7 @@ public class CategoryResource {
     @ApiOperation(value = "updates existing category", notes = """
             Returns status 200 (OK) when category was updated successfully,
             400 (BAD REQUEST) when there's an error in category data or 404 when category was not found.
+            Operation available only for page administrator.
             """)
     public Category updateCategory(
             @ApiParam(value = "id of category that is going to be updated", required = true)

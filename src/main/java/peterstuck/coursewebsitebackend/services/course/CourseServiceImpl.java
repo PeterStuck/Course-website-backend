@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peterstuck.coursewebsitebackend.exceptions.CourseNotFoundException;
-import peterstuck.coursewebsitebackend.models.Course;
-import peterstuck.coursewebsitebackend.models.CourseDescription;
+import peterstuck.coursewebsitebackend.models.course.Course;
+import peterstuck.coursewebsitebackend.models.course.CourseDescription;
 import peterstuck.coursewebsitebackend.repositories.CourseRepository;
 
 import java.util.Date;

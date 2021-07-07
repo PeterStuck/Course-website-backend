@@ -2,10 +2,10 @@ package peterstuck.coursewebsitebackend.factory.course;
 
 import peterstuck.coursewebsitebackend.builder.course.CourseBuilder;
 import peterstuck.coursewebsitebackend.builder.course.StandardCourseBuilder;
-import peterstuck.coursewebsitebackend.models.Category;
-import peterstuck.coursewebsitebackend.models.Course;
-import peterstuck.coursewebsitebackend.models.CourseDescription;
-import peterstuck.coursewebsitebackend.models.Language;
+import peterstuck.coursewebsitebackend.models.course.Category;
+import peterstuck.coursewebsitebackend.models.course.Course;
+import peterstuck.coursewebsitebackend.models.course.CourseDescription;
+import peterstuck.coursewebsitebackend.models.course.Language;
 
 import java.util.List;
 import java.util.Set;

@@ -1,4 +1,4 @@
-package peterstuck.coursewebsitebackend.models;
+package peterstuck.coursewebsitebackend.models.course;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

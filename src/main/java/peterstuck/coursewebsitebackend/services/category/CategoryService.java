@@ -1,7 +1,7 @@
 package peterstuck.coursewebsitebackend.services.category;
 
 import peterstuck.coursewebsitebackend.exceptions.CategoryNotFoundException;
-import peterstuck.coursewebsitebackend.models.Category;
+import peterstuck.coursewebsitebackend.models.course.Category;
 
 import java.util.*;
 

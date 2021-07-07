@@ -1,4 +1,4 @@
-package peterstuck.coursewebsitebackend.models;
+package peterstuck.coursewebsitebackend.models.course;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
