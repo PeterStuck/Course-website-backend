@@ -24,7 +24,6 @@ public class UserRepository {
     }
 
     public User save(User user) {
-        System.out.println(user);
         manager.persist(user);
 
         return user;

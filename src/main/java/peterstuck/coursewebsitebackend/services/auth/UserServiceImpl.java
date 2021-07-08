@@ -1,21 +1,23 @@
 package peterstuck.coursewebsitebackend.services.auth;
 
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import peterstuck.coursewebsitebackend.models.user.Role;
 import peterstuck.coursewebsitebackend.models.user.User;
 import peterstuck.coursewebsitebackend.repositories.UserRepository;
 import peterstuck.coursewebsitebackend.resources.auth.SerializableGrantedAuthority;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class UserServiceImpl implements UserService, UserDetailsService {
+public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository repository;
@@ -31,14 +33,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),
-                user.getRoles().stream().map(role -> new SerializableGrantedAuthority(role.getName())).collect(Collectors.toList())
+                mapRolesToAuthorities(user.getRoles())
         );
     }
 
-    @Override
-    @Transactional
-    public UserDetails findUserByEmail(String email) {
-        return this.loadUserByUsername(email);
+    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(List<Role> roles) {
+        return roles.stream().map(role -> new SerializableGrantedAuthority(role.getName())).collect(Collectors.toList());
     }
 
     @Override

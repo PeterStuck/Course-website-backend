@@ -1,11 +1,9 @@
 package peterstuck.coursewebsitebackend.services.auth;
 
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import peterstuck.coursewebsitebackend.models.user.User;
 
-public interface UserService {
-
-    UserDetails findUserByEmail(String email);
+public interface UserService extends UserDetailsService {
 
     User register(User user);
 
