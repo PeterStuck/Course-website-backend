@@ -117,8 +117,8 @@ public class InitRunner implements CommandLineRunner {
     }
 
     void initializeRoles() {
-        var user_role = new Role("USER");
-        var admin_role = new Role("ADMIN");
+        var user_role = new Role("ROLE_USER");
+        var admin_role = new Role("ROLE_ADMIN");
 
         roleRepository.save(user_role);
         roleRepository.save(admin_role);

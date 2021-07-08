@@ -2,8 +2,10 @@ package peterstuck.coursewebsitebackend.services.auth;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import peterstuck.coursewebsitebackend.resources.auth.UserCredentials;
 import peterstuck.coursewebsitebackend.utils.JwtUtil;
@@ -21,7 +23,7 @@ public class AuthServiceImpl implements AuthService {
     private JwtUtil jwtUtil;
 
     @Override
-    public String authenticateUser(UserCredentials credentials) {
+    public String authenticateUser(UserCredentials credentials) throws UsernameNotFoundException, BadCredentialsException {
         authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(credentials.getEmail(), credentials.getPassword())
         );
