@@ -1,5 +1,7 @@
 package peterstuck.coursewebsitebackend.models.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -39,7 +41,8 @@ public class User {
     )
     private List<Course> purchasedCourses;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @JsonIgnoreProperties(value = {"website_user", "hibernateLazyInitializer"})
     @JoinTable(
             name = "website_user_role",
             joinColumns = @JoinColumn(name = "website_user_id"),
@@ -47,6 +50,7 @@ public class User {
     )
     private List<Role> roles;
 
+    @JsonIgnore
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "website_user_detail_id")
     private UserDetail userDetail;

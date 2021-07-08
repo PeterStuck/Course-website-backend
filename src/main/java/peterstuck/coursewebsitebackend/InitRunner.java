@@ -3,14 +3,21 @@ package peterstuck.coursewebsitebackend;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import peterstuck.coursewebsitebackend.factory.course.CourseFactory;
 import peterstuck.coursewebsitebackend.factory.course_description.CourseDescriptionFactory;
 import peterstuck.coursewebsitebackend.models.course.Category;
+import peterstuck.coursewebsitebackend.models.user.Role;
+import peterstuck.coursewebsitebackend.models.user.User;
+import peterstuck.coursewebsitebackend.models.user.UserDetail;
 import peterstuck.coursewebsitebackend.repositories.CategoryRepository;
 import peterstuck.coursewebsitebackend.repositories.CourseRepository;
+import peterstuck.coursewebsitebackend.repositories.RoleRepository;
+import peterstuck.coursewebsitebackend.repositories.UserRepository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,13 +34,26 @@ public class InitRunner implements CommandLineRunner {
     @Autowired
     private CourseRepository courseRepository;
 
+    @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    @Qualifier("bcryptPasswordEncoder")
+    private PasswordEncoder passwordEncoder;
+
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
         initializeCategories();
         initializeCourses();
+
+        initializeRoles();
+        initializeUsers();
     }
 
-    @Transactional
     void initializeCategories() {
         categoryRepository.save(new Category("Programowanie", 0));
         categoryRepository.save(new Category("Biznes", 0));
@@ -47,7 +67,6 @@ public class InitRunner implements CommandLineRunner {
         categoryRepository.findAll().forEach(category -> logger.info("CREATED CATEGORY {}", category.getName()));
     }
 
-    @Transactional
     void initializeCourses() {
         var course = CourseFactory.createCourse(
                 "Kurs Tworzenia Stron WWW w HTML i CSS",
@@ -95,6 +114,31 @@ public class InitRunner implements CommandLineRunner {
         courseRepository.save(course2);
 
         courseRepository.findAll().forEach(c -> logger.info("CREATED COURSE {}", c.getTitle()));
+    }
+
+    void initializeRoles() {
+        var user_role = new Role("USER");
+        var admin_role = new Role("ADMIN");
+
+        roleRepository.save(user_role);
+        roleRepository.save(admin_role);
+
+        roleRepository.findAll().forEach(role -> logger.info("CREATED ROLE {}", role.getName()));
+    }
+
+    void initializeUsers() {
+        var user = new User();
+        user.setEmail("email@email.com");
+        user.setFirstName("name");
+        user.setLastName("last");
+        user.setPassword(passwordEncoder.encode("user"));
+        user.setPurchasedCourses(Collections.emptyList());
+        user.setRoles(Collections.singletonList(roleRepository.findById(1).get()));
+        user.setUserDetail(new UserDetail());
+
+        userRepository.save(user);
+
+        logger.info("CREATED USER {}", user.getEmail());
     }
 
 }
