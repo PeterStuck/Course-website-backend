@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import peterstuck.coursewebsitebackend.resources.TestRequestUtils;
 import peterstuck.coursewebsitebackend.factory.course.CourseFactory;
@@ -176,6 +177,7 @@ class CourseResourceTest {
         assertThat(courses.get(0).getTitle(), equalTo("Course with keyword 1"));
     }
 
+    @WithMockUser
     @Test
     void shouldAddNewCourseAndReturnNewObjectWithStatus201() throws Exception {
         when(repository.findAll()).thenReturn(testCourses);
@@ -192,6 +194,7 @@ class CourseResourceTest {
         assertThat(repository.findAll(), hasSize(4));
     }
 
+    @WithMockUser
     @Test
     void shouldDeleteCourseWhenExists() throws Exception {
         testCourses.add(testCourse);
@@ -207,11 +210,13 @@ class CourseResourceTest {
         assertThat(repository.findAll(), hasSize(3));
     }
 
+    @WithMockUser
     @Test
     void shouldReturnStatus404WhenCourseNotFound() throws Exception {
         tru.makeDeleteRequest(BASE_PATH + "/1", status().isNotFound());
     }
 
+    @WithMockUser
     @Test
     void shouldUpdateWhenCourseDataIsValid() throws Exception {
         long id = 1L;
@@ -227,6 +232,7 @@ class CourseResourceTest {
         assertThat(repository.findById(id).get().getTitle(), equalTo("NEW TITLE"));
     }
 
+    @WithMockUser
     @Test
     void shouldReturnErrorMessagesWhenCourseDataIsInvalid() throws Exception {
         var invalidCourse = CourseFactory.createCourse(null, null, null);
@@ -242,6 +248,7 @@ class CourseResourceTest {
         assertThat(response, containsString("Course must have a description."));
     }
 
+    @WithMockUser
     @Test
     void shouldReturnErrorMessagesWhenCourseDescriptionDataIsInvalid() throws Exception {
         var invalidCourseDescription = CourseDescriptionFactory.createCourseDescription(

@@ -1,4 +1,4 @@
-package peterstuck.coursewebsitebackend.services.auth;
+package peterstuck.coursewebsitebackend.services.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;

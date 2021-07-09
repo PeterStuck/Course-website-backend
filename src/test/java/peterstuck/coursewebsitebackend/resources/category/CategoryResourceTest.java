@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import peterstuck.coursewebsitebackend.resources.TestRequestUtils;
 import peterstuck.coursewebsitebackend.models.course.Category;
@@ -19,6 +21,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
 class CategoryResourceTest {
@@ -88,6 +91,7 @@ class CategoryResourceTest {
         assertThat(tru.makeRequestToGetItems(BASE_PATH + "/" + 999, status().isNoContent()), equalTo(Collections.emptyList()));
     }
 
+    @WithMockUser(roles = { "ADMIN" })
     @Test
     void whenNewCategoryObjectIsValidShouldBeAbleToSaveAndReturnStatusCreated() throws Exception {
         when(repository.save(testCategory)).then(invocationOnMock -> {
@@ -103,6 +107,7 @@ class CategoryResourceTest {
         assertThat(category.getName(), equalTo(testCategory.getName()));
     }
 
+    @WithMockUser(roles = { "ADMIN" })
     @Test
     void categoryShouldBeUpdatedWhenNewObjectIsValidAndStatusOk() throws Exception {
         int catId = 1;
@@ -120,6 +125,7 @@ class CategoryResourceTest {
         assertThat(updatedCategory.getParentCategoryId(), equalTo(10));
     }
 
+    @WithMockUser(roles = { "ADMIN" })
     @Test
     void shouldReturnStatus404AndMessageWhenCategoryWithGivenIdNotFound() throws Exception {
         var response = tru.makePutRequest(BASE_PATH + "/" + 562, testCategory, status().isNotFound());
@@ -129,6 +135,7 @@ class CategoryResourceTest {
         assertThat(response.getContentAsString(), containsString("timestamp"));
     }
 
+    @WithMockUser(roles = { "ADMIN" })
     @Test
     void shouldDeleteCategoryIfExistsAndStatus200() throws Exception {
         when(repository.findById(1)).thenReturn(Optional.ofNullable(testCategory));
@@ -139,6 +146,7 @@ class CategoryResourceTest {
         assertThat(response.getContentAsString(), containsString("Category with id: 1 successfully deleted."));
     }
 
+    @WithMockUser(roles = { "ADMIN" })
     @Test
     void whenInvalidCategoryObjectPassedThenReturnStatus400AndFieldErrorMessages() throws Exception {
         Category invalidCategory = new Category("", -1);
@@ -152,6 +160,7 @@ class CategoryResourceTest {
         assertThat(response, containsString("Category name should have at least 4 characters."));
     }
 
+    @WithMockUser(roles = { "ADMIN" })
     @Test
     void shouldReturnStatus404WhenCategoryNotFoundDuringDeleteRequest() throws Exception {
         String response = tru.makeDeleteRequest(BASE_PATH + "/" + 123, status().isNotFound()).getContentAsString();
@@ -159,6 +168,11 @@ class CategoryResourceTest {
         assertThat(response, containsString("Category with id: 123 not found."));
         assertThat(response, containsString("message"));
         assertThat(response, containsString("timestamp"));
+    }
+
+    @Test
+    void shouldReturnStatus403WhenUserIsNotAnAdmin() throws Exception {
+        tru.makePostRequest(BASE_PATH, testCategory, status().isForbidden());
     }
 
 }

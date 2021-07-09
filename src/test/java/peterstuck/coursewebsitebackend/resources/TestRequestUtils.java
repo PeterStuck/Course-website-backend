@@ -43,7 +43,6 @@ public class TestRequestUtils {
     public MockHttpServletResponse makeRequestToGetSingleItem(String path, ResultMatcher expectedStatus) throws Exception {
         return mvc.perform(get(path).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(expectedStatus)
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andReturn().getResponse();
     }
 
@@ -60,7 +59,6 @@ public class TestRequestUtils {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(JsonFilter.castObjectToJsonString(content, FILTER_NAME, null)))
                 .andExpect(expectedStatus)
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andReturn().getResponse();
     }
 

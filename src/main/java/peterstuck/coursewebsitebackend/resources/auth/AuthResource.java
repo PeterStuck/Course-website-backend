@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import peterstuck.coursewebsitebackend.services.auth.AuthService;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/api/auth")
 @Api(value = "Authentication", tags = { "Authentication" })
@@ -27,7 +29,7 @@ public class AuthResource {
             """)
     public JwtToken authenticateUserAndReturnToken(
             @ApiParam(value = "consists of email and plain password", required = true)
-            @RequestBody UserCredentials credentials) {
+            @Valid  @RequestBody UserCredentials credentials) {
         String token = service.authenticateUser(credentials);
 
         return new JwtToken(token);

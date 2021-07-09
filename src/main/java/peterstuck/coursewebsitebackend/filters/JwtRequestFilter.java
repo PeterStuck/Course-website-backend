@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import peterstuck.coursewebsitebackend.services.auth.UserService;
+import peterstuck.coursewebsitebackend.services.user.UserService;
 import peterstuck.coursewebsitebackend.utils.JwtUtil;
 
 import javax.servlet.FilterChain;

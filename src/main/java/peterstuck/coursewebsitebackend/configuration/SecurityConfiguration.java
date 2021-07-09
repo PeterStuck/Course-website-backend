@@ -16,7 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import peterstuck.coursewebsitebackend.filters.JwtRequestFilter;
-import peterstuck.coursewebsitebackend.services.auth.UserService;
+import peterstuck.coursewebsitebackend.services.user.UserService;
 
 @Configuration
 @EnableWebSecurity

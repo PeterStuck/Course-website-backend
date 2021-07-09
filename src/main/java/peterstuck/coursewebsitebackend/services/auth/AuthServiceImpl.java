@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import peterstuck.coursewebsitebackend.resources.auth.UserCredentials;
+import peterstuck.coursewebsitebackend.services.user.UserService;
 import peterstuck.coursewebsitebackend.utils.JwtUtil;
 
 @Service

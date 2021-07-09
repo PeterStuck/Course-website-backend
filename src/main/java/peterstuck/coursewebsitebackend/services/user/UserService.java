@@ -1,4 +1,4 @@
-package peterstuck.coursewebsitebackend.services.auth;
+package peterstuck.coursewebsitebackend.services.user;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 import peterstuck.coursewebsitebackend.models.user.User;

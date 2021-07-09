@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
+@Profile("!test")
 @Component
 public class InitRunner implements CommandLineRunner {
 
@@ -118,9 +120,11 @@ public class InitRunner implements CommandLineRunner {
 
     void initializeRoles() {
         var user_role = new Role("ROLE_USER");
+        var developer_role = new Role("ROLE_DEVELOPER");
         var admin_role = new Role("ROLE_ADMIN");
 
         roleRepository.save(user_role);
+        roleRepository.save(developer_role);
         roleRepository.save(admin_role);
 
         roleRepository.findAll().forEach(role -> logger.info("CREATED ROLE {}", role.getName()));
