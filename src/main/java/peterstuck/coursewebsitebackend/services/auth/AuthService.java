@@ -9,6 +9,4 @@ public interface AuthService {
      */
     String authenticateUser(UserCredentials credentials);
 
-    boolean validateToken(String token);
-
 }

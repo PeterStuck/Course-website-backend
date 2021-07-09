@@ -32,8 +32,4 @@ public class AuthServiceImpl implements AuthService {
         return jwtUtil.generateToken(user);
     }
 
-    @Override
-    public boolean validateToken(String token) {
-        return false;
-    }
 }
