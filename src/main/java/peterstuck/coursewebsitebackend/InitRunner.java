@@ -136,9 +136,20 @@ public class InitRunner implements CommandLineRunner {
         user.setRoles(Collections.singletonList(roleRepository.findById(1).get()));
         user.setUserDetail(new UserDetail());
 
+        var admin = new User();
+        admin.setEmail("admin@email.com");
+        admin.setFirstName("name");
+        admin.setLastName("last");
+        admin.setPassword(passwordEncoder.encode("admin"));
+        admin.setPurchasedCourses(Collections.emptyList());
+        admin.setRoles(Collections.singletonList(roleRepository.findById(2).get()));
+        admin.setUserDetail(new UserDetail());
+
         userRepository.save(user);
+        userRepository.save(admin);
 
         logger.info("CREATED USER {}", user.getEmail());
+        logger.info("CREATED USER {}", admin.getEmail());
     }
 
 }

@@ -52,6 +52,7 @@ public class CourseServiceImpl implements CourseService {
 
     private void initializeLazyObjects(Course course) {
         Hibernate.initialize(course.getSubtitles());
+        Hibernate.initialize(course.getCategories());
 
         if (course.getCourseDescription() != null) {
             Hibernate.initialize(course.getCourseDescription());

@@ -35,7 +35,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
             var authToken = createAuthToken(username, token);
             if (authToken != null) {
-                System.out.println("AUTHORIZATION SUCCESSFULLY");
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
@@ -47,7 +46,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     private UsernamePasswordAuthenticationToken createAuthToken(String username, String token) {
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails user = userService.loadUserByUsername(username);
-            System.out.println(user);
             if (jwtUtil.validateToken(token, user))
                 return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
         }
