@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import peterstuck.coursewebsitebackend.exceptions.CourseNotFoundException;
 import peterstuck.coursewebsitebackend.models.course.Course;
 import peterstuck.coursewebsitebackend.models.course.CourseDescription;
+import peterstuck.coursewebsitebackend.models.course.Rate;
 import peterstuck.coursewebsitebackend.repositories.CourseRepository;
 
 import java.util.Date;
@@ -43,11 +44,11 @@ public class CourseServiceImpl implements CourseService {
     }
 
     private void computeAvgAndCountOfRates(Course course) {
-        List<Double> rates = course.getRates();
+        var courseFeedback = course.getCourseFeedback();
 
-        double avg = rates.stream().mapToDouble(f -> f).sum() / rates.size();
-        course.setAvgRate(avg);
-        course.setRatesCount(rates.size());
+        double avg = courseFeedback.getRates().stream().mapToDouble(Rate::getRateValue).sum() / courseFeedback.getRates().size();
+        courseFeedback.setAvgRate(avg);
+        courseFeedback.setRatesCount(courseFeedback.getRates().size());
     }
 
     private void initializeLazyObjects(Course course) {

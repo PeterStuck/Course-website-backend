@@ -2,6 +2,8 @@ package peterstuck.coursewebsitebackend.models.course;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import peterstuck.coursewebsitebackend.models.user.User;
+import peterstuck.coursewebsitebackend.models.user.UserActivity;
 
 import javax.persistence.*;
 
@@ -20,11 +22,11 @@ public class Comment {
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    @JoinColumn(name = "course_id")
-    private Course course;
+    @JoinColumn(name = "course_feedback_id")
+    private CourseFeedback courseFeedback;
 
-    public Comment(String description) {
-        this.description = description;
-    }
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @JoinColumn(name = "user_activity_id")
+    private UserActivity author;
 
 }

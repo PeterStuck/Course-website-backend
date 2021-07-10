@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import peterstuck.coursewebsitebackend.models.user.User;
+import peterstuck.coursewebsitebackend.models.user.UserActivity;
 
 import javax.persistence.*;
 import javax.validation.Valid;
@@ -56,10 +57,6 @@ public class Course {
 //    @Size(min = 1, message = "Course must have at least one category selected.")
     private List<Category> categories;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "course")
-    private List<Comment> comments;
-
     @Column(name = "last_update")
     @ApiModelProperty(notes = "Date of last course update in long format. Automatically created when course is being created and every course update")
     private Long lastUpdate;
@@ -77,27 +74,26 @@ public class Course {
     @JsonIgnoreProperties(value = {"course", "hibernateLazyInitializer"})
     private CourseDescription courseDescription;
 
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "course_feedback_id")
+    @ApiModelProperty(notes = "Contains all related feedback from users to course.", required = true)
+    @NotNull(message = "Course must have a feedback.")
+    private CourseFeedback courseFeedback;
+
     @JsonIgnore
     @ManyToMany(mappedBy = "purchasedCourses")
-    private List<User> users;
+    private List<User> students;
 
-    @JsonIgnore
-    @ElementCollection(fetch = FetchType.LAZY)
-    @Column
-    private List<Double> rates;
-
-    @ApiModelProperty(value = "Average rate from all rates for course")
-    private double avgRate;
-
-    private int ratesCount;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "course_website_user",
+            joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "website_user_id")
+    )
+    private List<User> authors;
 
     public Course() {
-        rates = new ArrayList<>();
-        comments = new ArrayList<>();
         categories = new ArrayList<>();
         lastUpdate = new Date().getTime();
-
-        avgRate = 0.0;
-        ratesCount = 0;
     }
 }

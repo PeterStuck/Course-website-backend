@@ -7,7 +7,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import peterstuck.coursewebsitebackend.models.course.CourseFeedback;
 import peterstuck.coursewebsitebackend.resources.TestRequestUtils;
 import peterstuck.coursewebsitebackend.factory.course.CourseFactory;
 import peterstuck.coursewebsitebackend.factory.course_description.CourseDescriptionFactory;
@@ -28,6 +30,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
 class CourseResourceTest {
@@ -46,6 +49,7 @@ class CourseResourceTest {
             "short",
             "long"
     );
+    private CourseFeedback testFeedback;
 
     private TestRequestUtils tru;
 
@@ -55,11 +59,17 @@ class CourseResourceTest {
     void setUp() {
         tru = new TestRequestUtils(Course.class, mvc, "CourseFilter");
 
+        initializeFeedback();
+
         initializeTestCategories();
 
         initializeTestCourseList();
 
         initializeTestCourse();
+    }
+
+    private void initializeFeedback() {
+        testFeedback = new CourseFeedback();
     }
 
     private void initializeTestCategories() {
@@ -78,6 +88,7 @@ class CourseResourceTest {
                 "TEST " + i,
                 Math.max(i, 1.0),
                 testCourseDescription,
+                testFeedback,
                 testCategories);
             testCourses.add(course);
         }
@@ -88,6 +99,7 @@ class CourseResourceTest {
                 "VALID TEST TITLE",
                 10.0,
                 testCourseDescription,
+                testFeedback,
                 testCategories
         );
     }
@@ -112,8 +124,8 @@ class CourseResourceTest {
 
     @Test
     void whenKeywordIsPassedShouldReturnFilteredCourses() throws Exception {
-        testCourses.add(CourseFactory.createCourse("TEST WITH KEYWORD", 5.0, testCourseDescription));
-        testCourses.add(CourseFactory.createCourse("TEST WITH KEYWORD 2", 4.5, testCourseDescription));
+        testCourses.add(CourseFactory.createCourse("TEST WITH KEYWORD", 5.0, testCourseDescription, testFeedback));
+        testCourses.add(CourseFactory.createCourse("TEST WITH KEYWORD 2", 4.5, testCourseDescription, testFeedback));
         when(repository.findAll()).thenReturn(testCourses);
 
         String keyword = "KEYWORD";
@@ -167,8 +179,8 @@ class CourseResourceTest {
 
     @Test
     void shouldReturnListOfCoursesFilteredByCategoryAndKeywordWhenKeywordProvided() throws Exception {
-        testCourses.add(CourseFactory.createCourse("Course with keyword 1", 1.0, testCourseDescription, testCategories));
-        testCourses.add(CourseFactory.createCourse("Course with keyword 2", 2.0, testCourseDescription, testCategories));
+        testCourses.add(CourseFactory.createCourse("Course with keyword 1", 1.0, testCourseDescription, testFeedback, testCategories));
+        testCourses.add(CourseFactory.createCourse("Course with keyword 2", 2.0, testCourseDescription, testFeedback, testCategories));
         when(repository.findAll()).thenReturn(testCourses);
 
         String keyword = "KeYwoRD";
@@ -235,17 +247,19 @@ class CourseResourceTest {
     @WithMockUser
     @Test
     void shouldReturnErrorMessagesWhenCourseDataIsInvalid() throws Exception {
-        var invalidCourse = CourseFactory.createCourse(null, null, null);
+        var invalidCourse = CourseFactory.createCourse(null, null, null, null);
         String response = tru.makePostRequest(BASE_PATH, invalidCourse, status().isBadRequest()).getContentAsString();
 
         // check name of error fields exist in response
         assertThat(response, containsString("title"));
         assertThat(response, containsString("price"));
         assertThat(response, containsString("courseDescription"));
+        assertThat(response, containsString("courseFeedback"));
         // check that correct error messages are returning with response
         assertThat(response, containsString("Title is mandatory."));
         assertThat(response, containsString("Price is mandatory."));
         assertThat(response, containsString("Course must have a description."));
+        assertThat(response, containsString("Course must have a feedback."));
     }
 
     @WithMockUser
@@ -256,7 +270,7 @@ class CourseResourceTest {
                 null,
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus quis vestibulum eros, at porta lorem. Cras tincidunt laoreet diam, vitae placerat metus laoreet sit amet. Nulla eros dui, molestie ac pharetra ut, mattis vitae ex. Etiam eget convallis mauris. Morbi blandit tortor vitae quam mollis, sit amet pellentesque nulla ultrices. Vivamus blandit quam porta, blandit urna vitae, sagittis nisi. Quisque placerat efficitur metus, non fringilla nisi semper sit amet. Vivamus eget tellus in justo ele."
         );
-        var invalidCourse = CourseFactory.createCourse("TEST", 0.0, invalidCourseDescription);
+        var invalidCourse = CourseFactory.createCourse("TEST", 0.0, invalidCourseDescription, testFeedback);
         String response = tru.makePostRequest(BASE_PATH, invalidCourse, status().isBadRequest()).getContentAsString();
 
         assertThat(response, containsString("Duration is mandatory."));
@@ -270,13 +284,18 @@ class CourseResourceTest {
         cloned.setId(original.getId());
         cloned.setTitle(original.getTitle());
         cloned.setLastUpdate(original.getLastUpdate());
-        cloned.setComments(original.getComments());
+
+        CourseFeedback clonedFeedback = new CourseFeedback();
+//        clonedFeedback.s(original.getCourseFeedback());
+        cloned.setCourseFeedback(original.getCourseFeedback());
+
+//        cloned.setComments(original.getComments());
         cloned.setCourseDescription(original.getCourseDescription());
         cloned.setSubtitles(original.getSubtitles());
         cloned.setCategories(original.getCategories());
         cloned.setPrice(original.getPrice());
         cloned.setLanguages(original.getLanguages());
-        cloned.setRates(original.getRates());
+//        cloned.setRates(original.getRates());
         return cloned;
     }
 

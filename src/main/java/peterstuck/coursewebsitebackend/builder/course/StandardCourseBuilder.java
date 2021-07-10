@@ -22,8 +22,8 @@ public class StandardCourseBuilder implements CourseBuilder {
     }
 
     @Override
-    public CourseBuilder buildRates(List<Double> rates) {
-        course.setRates(rates);
+    public CourseBuilder buildRates(List<Rate> rates) {
+        course.getCourseFeedback().setRates(rates);
 
         return this;
     }
@@ -51,7 +51,7 @@ public class StandardCourseBuilder implements CourseBuilder {
 
     @Override
     public CourseBuilder buildComments(List<Comment> comments) {
-        course.setComments(comments);
+        course.getCourseFeedback().setComments(comments);
 
         return this;
     }
@@ -73,6 +73,13 @@ public class StandardCourseBuilder implements CourseBuilder {
     @Override
     public CourseBuilder buildCourseDescription(CourseDescription description) {
         course.setCourseDescription(description);
+
+        return this;
+    }
+
+    @Override
+    public CourseBuilder buildCourseFeedback(CourseFeedback courseFeedback) {
+        course.setCourseFeedback(courseFeedback);
 
         return this;
     }

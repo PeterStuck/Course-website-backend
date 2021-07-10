@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.Pattern;
 import java.util.List;
 
 @NoArgsConstructor
@@ -24,6 +25,7 @@ public class Role {
     @Getter
     @Setter
     @Column
+    @Pattern(regexp = "^ROLE_[A-Z]{2,}$", message = "Role name should match pattern: ROLE_NAME, ex. ROLE_ADMIN.")
     private String name;
 
     @JsonIgnore

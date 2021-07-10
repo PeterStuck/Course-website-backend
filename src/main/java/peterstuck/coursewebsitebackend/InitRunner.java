@@ -12,8 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 import peterstuck.coursewebsitebackend.factory.course.CourseFactory;
 import peterstuck.coursewebsitebackend.factory.course_description.CourseDescriptionFactory;
 import peterstuck.coursewebsitebackend.models.course.Category;
+import peterstuck.coursewebsitebackend.models.course.CourseFeedback;
 import peterstuck.coursewebsitebackend.models.user.Role;
 import peterstuck.coursewebsitebackend.models.user.User;
+import peterstuck.coursewebsitebackend.models.user.UserActivity;
 import peterstuck.coursewebsitebackend.models.user.UserDetail;
 import peterstuck.coursewebsitebackend.repositories.CategoryRepository;
 import peterstuck.coursewebsitebackend.repositories.CourseRepository;
@@ -88,6 +90,7 @@ public class InitRunner implements CommandLineRunner {
                                 "różnice między HTML, XHTML, HTML 5, CSS i CSS 3"
                         ),
                         Collections.singletonList("Wszystko wyjaśnione jest w kursie. Nie musisz posiadać żadnych wiadomości. Wystarczą dobre chęci :)")),
+                new CourseFeedback(),
                 new ArrayList<>(Arrays.asList(categoryRepository.findById(1).get()))
         );
 
@@ -109,6 +112,7 @@ public class InitRunner implements CommandLineRunner {
                                 "różnice między HTML, XHTML, HTML 5, CSS i CSS 3"
                         ),
                         Collections.singletonList("Wszystko wyjaśnione jest w kursie. Nie musisz posiadać żadnych wiadomości. Wystarczą dobre chęci :)")),
+                new CourseFeedback(),
                 new ArrayList<>(Arrays.asList(categoryRepository.findById(1).get()))
         );
 
@@ -133,19 +137,19 @@ public class InitRunner implements CommandLineRunner {
     void initializeUsers() {
         var user = new User();
         user.setEmail("email@email.com");
-        user.setFirstName("name");
-        user.setLastName("last");
-        user.setPassword(passwordEncoder.encode("user"));
-        user.setPurchasedCourses(Collections.emptyList());
+        user.setFirstName("Name");
+        user.setLastName("Last");
+        user.setPassword(passwordEncoder.encode("User1234!"));
+        user.setUserActivity(new UserActivity());
         user.setRoles(Collections.singletonList(roleRepository.findById(1).get()));
         user.setUserDetail(new UserDetail());
 
         var admin = new User();
         admin.setEmail("admin@email.com");
-        admin.setFirstName("name");
-        admin.setLastName("last");
-        admin.setPassword(passwordEncoder.encode("admin"));
-        admin.setPurchasedCourses(Collections.emptyList());
+        admin.setFirstName("Name");
+        admin.setLastName("Last");
+        admin.setPassword(passwordEncoder.encode("Admin123!"));
+        admin.setUserActivity(new UserActivity());
         admin.setRoles(Collections.singletonList(roleRepository.findById(2).get()));
         admin.setUserDetail(new UserDetail());
 

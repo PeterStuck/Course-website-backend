@@ -13,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import peterstuck.coursewebsitebackend.models.user.Role;
 import peterstuck.coursewebsitebackend.models.user.User;
+import peterstuck.coursewebsitebackend.models.user.UserActivity;
 import peterstuck.coursewebsitebackend.models.user.UserDetail;
 import peterstuck.coursewebsitebackend.repositories.UserRepository;
 import peterstuck.coursewebsitebackend.resources.TestRequestUtils;
@@ -62,7 +63,7 @@ class AuthResourceTest {
         testUser.setFirstName("name");
         testUser.setLastName("last");
         testUser.setPassword(encoder.encode("user"));
-        testUser.setPurchasedCourses(Collections.emptyList());
+        testUser.setUserActivity(new UserActivity());
         testUser.setRoles(Arrays.asList(
                 new Role("ROLE_ADMIN"),
                 new Role("ROLE_USER")

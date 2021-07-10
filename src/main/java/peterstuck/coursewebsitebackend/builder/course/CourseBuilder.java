@@ -9,7 +9,7 @@ public interface CourseBuilder {
 
     CourseBuilder buildTitle(String title);
 
-    CourseBuilder buildRates(List<Double> rates);
+    CourseBuilder buildRates(List<Rate> rates);
 
     CourseBuilder buildLanguages(Set<Language> languages);
 
@@ -24,6 +24,8 @@ public interface CourseBuilder {
     CourseBuilder buildPrice(Double price);
 
     CourseBuilder buildCourseDescription(CourseDescription description);
+
+    CourseBuilder buildCourseFeedback(CourseFeedback courseFeedback);
 
     Course getResult();
 
