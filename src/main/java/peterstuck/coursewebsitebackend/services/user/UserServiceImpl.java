@@ -1,5 +1,6 @@
 package peterstuck.coursewebsitebackend.services.user;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -9,7 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peterstuck.coursewebsitebackend.models.user.Role;
 import peterstuck.coursewebsitebackend.models.user.User;
+import peterstuck.coursewebsitebackend.models.user.UserActivity;
 import peterstuck.coursewebsitebackend.repositories.UserRepository;
+import peterstuck.coursewebsitebackend.utils.JwtUtil;
 
 import java.util.Collection;
 import java.util.List;
@@ -20,6 +23,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository repository;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Override
     @Transactional
@@ -42,19 +48,51 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User register(User user) {
-        return null;
+    public void register(User user) {
+        user.setUserActivity(new UserActivity());
+        repository.save(user);
     }
 
     @Override
     @Transactional
-    public User update(User user) {
-        return null;
+    /**
+     * Returns new JWT after user update
+     */
+    public String update(String token, User updatedUser) throws UsernameNotFoundException {
+        token = token.substring(7);
+        User actualUser = repository.findByEmail(jwtUtil.extractUsername(token));
+        if (actualUser == null) {
+            throw new UsernameNotFoundException("Wrong token.");
+        }
+
+        updateUser(actualUser, updatedUser);
+        repository.save(actualUser);
+
+        return jwtUtil.generateToken(this.loadUserByUsername(actualUser.getEmail()));
+    }
+
+    private void updateUser(User original, User updated) {
+        original.setEmail(updated.getEmail());
+        original.setFirstName(updated.getFirstName());
+        original.setLastName(updated.getLastName());
+        original.setUserDetail(updated.getUserDetail());
     }
 
     @Override
     @Transactional
-    public void delete(Long id) {
+    public User getUserInfo(String token) throws UsernameNotFoundException {
+        token = token.substring(7);
 
+        User user = repository.findByEmail(jwtUtil.extractUsername(token));
+        initUserCollections(user);
+
+        return user;
+    }
+
+    private void initUserCollections(User user) {
+        Hibernate.initialize(user.getRoles());
+        Hibernate.initialize(user.getPurchasedCourses());
+        Hibernate.initialize(user.getOwnCourses());
+        Hibernate.initialize(user.getUserDetail());
     }
 }

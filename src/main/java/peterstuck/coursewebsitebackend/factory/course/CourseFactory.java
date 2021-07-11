@@ -11,25 +11,23 @@ public class CourseFactory {
 
     private static CourseBuilder courseBuilder = new StandardCourseBuilder();
 
-    public static Course createCourse(String title, Double price, CourseDescription description, CourseFeedback courseFeedback) {
+    public static Course createCourse(String title, Double price, CourseDescription description) {
         Course course = courseBuilder
                 .buildTitle(title)
                 .buildPrice(price)
                 .buildCourseDescription(description)
-                .buildCourseFeedback(courseFeedback)
                 .getResult();
         courseBuilder.restore();
 
         return course;
     }
 
-    public static Course createCourse(String title, Double price, CourseDescription description, CourseFeedback courseFeedback, List<Category> categories) {
+    public static Course createCourse(String title, Double price, CourseDescription description, List<Category> categories) {
         Course course = courseBuilder
                 .buildTitle(title)
                 .buildPrice(price)
                 .buildCourseDescription(description)
                 .buildCategories(categories)
-                .buildCourseFeedback(courseFeedback)
                 .getResult();
         courseBuilder.restore();
 

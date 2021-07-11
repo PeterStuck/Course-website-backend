@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import peterstuck.coursewebsitebackend.exceptions.CourseNotFoundException;
 import peterstuck.coursewebsitebackend.models.course.Course;
 import peterstuck.coursewebsitebackend.models.course.CourseDescription;
+import peterstuck.coursewebsitebackend.models.course.CourseFeedback;
 import peterstuck.coursewebsitebackend.models.course.Rate;
 import peterstuck.coursewebsitebackend.repositories.CourseRepository;
 
@@ -54,6 +55,9 @@ public class CourseServiceImpl implements CourseService {
     private void initializeLazyObjects(Course course) {
         Hibernate.initialize(course.getSubtitles());
         Hibernate.initialize(course.getCategories());
+        Hibernate.initialize(course.getAuthors());
+        Hibernate.initialize(course.getCourseFeedback().getComments());
+        Hibernate.initialize(course.getCourseFeedback().getRates());
 
         if (course.getCourseDescription() != null) {
             Hibernate.initialize(course.getCourseDescription());
@@ -65,6 +69,7 @@ public class CourseServiceImpl implements CourseService {
     @Override
     @Transactional
     public Course save(Course course) {
+        course.setCourseFeedback(new CourseFeedback());
         return repository.save(course);
     }
 

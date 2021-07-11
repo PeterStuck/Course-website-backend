@@ -76,7 +76,7 @@ public class CourseResource {
                     .collect(Collectors.toList());
         }
 
-        return getResponseAndStatus((List<Course>) JsonFilter.filterFields(courses, FILTER_NAME, new String[] { "courseDescription" }));
+        return getResponseAndStatus((List<Course>) JsonFilter.filterFields(courses, FILTER_NAME, new String[] { "courseDescription", "courseFeedback" }));
     }
 
     private boolean checkCourseTitleContainsKeyword(Course course, String keyword) {

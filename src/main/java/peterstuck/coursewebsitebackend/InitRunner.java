@@ -90,7 +90,6 @@ public class InitRunner implements CommandLineRunner {
                                 "różnice między HTML, XHTML, HTML 5, CSS i CSS 3"
                         ),
                         Collections.singletonList("Wszystko wyjaśnione jest w kursie. Nie musisz posiadać żadnych wiadomości. Wystarczą dobre chęci :)")),
-                new CourseFeedback(),
                 new ArrayList<>(Arrays.asList(categoryRepository.findById(1).get()))
         );
 
@@ -112,7 +111,6 @@ public class InitRunner implements CommandLineRunner {
                                 "różnice między HTML, XHTML, HTML 5, CSS i CSS 3"
                         ),
                         Collections.singletonList("Wszystko wyjaśnione jest w kursie. Nie musisz posiadać żadnych wiadomości. Wystarczą dobre chęci :)")),
-                new CourseFeedback(),
                 new ArrayList<>(Arrays.asList(categoryRepository.findById(1).get()))
         );
 
@@ -139,7 +137,7 @@ public class InitRunner implements CommandLineRunner {
         user.setEmail("email@email.com");
         user.setFirstName("Name");
         user.setLastName("Last");
-        user.setPassword(passwordEncoder.encode("User1234!"));
+        user.setPassword(passwordEncoder.encode("user"));
         user.setUserActivity(new UserActivity());
         user.setRoles(Collections.singletonList(roleRepository.findById(1).get()));
         user.setUserDetail(new UserDetail());
@@ -148,7 +146,7 @@ public class InitRunner implements CommandLineRunner {
         admin.setEmail("admin@email.com");
         admin.setFirstName("Name");
         admin.setLastName("Last");
-        admin.setPassword(passwordEncoder.encode("Admin123!"));
+        admin.setPassword(passwordEncoder.encode("admin"));
         admin.setUserActivity(new UserActivity());
         admin.setRoles(Collections.singletonList(roleRepository.findById(2).get()));
         admin.setUserDetail(new UserDetail());

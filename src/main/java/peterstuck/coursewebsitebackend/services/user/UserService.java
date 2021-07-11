@@ -1,14 +1,15 @@
 package peterstuck.coursewebsitebackend.services.user;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import peterstuck.coursewebsitebackend.models.user.User;
 
 public interface UserService extends UserDetailsService {
 
-    User register(User user);
+    void register(User user);
 
-    User update(User user);
+    String update(String token, User user) throws UsernameNotFoundException;
 
-    void delete(Long id);
+    User getUserInfo(String token) throws UsernameNotFoundException;
 
 }

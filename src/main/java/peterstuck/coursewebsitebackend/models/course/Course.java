@@ -5,8 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 import peterstuck.coursewebsitebackend.models.user.User;
 import peterstuck.coursewebsitebackend.models.user.UserActivity;
 
@@ -21,7 +20,9 @@ import java.util.List;
 import java.util.Set;
 
 @JsonFilter("CourseFilter")
-@Data
+@Getter
+@Setter
+@ToString
 @AllArgsConstructor
 @Entity
 @Table(name = "course")
@@ -74,10 +75,10 @@ public class Course {
     @JsonIgnoreProperties(value = {"course", "hibernateLazyInitializer"})
     private CourseDescription courseDescription;
 
+    @JsonIgnoreProperties(value = {"course", "hibernateLazyInitializer"})
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "course_feedback_id")
     @ApiModelProperty(notes = "Contains all related feedback from users to course.", required = true)
-    @NotNull(message = "Course must have a feedback.")
     private CourseFeedback courseFeedback;
 
     @JsonIgnore

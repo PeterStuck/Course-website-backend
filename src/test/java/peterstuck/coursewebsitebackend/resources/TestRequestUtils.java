@@ -41,7 +41,8 @@ public class TestRequestUtils {
     }
 
     public MockHttpServletResponse makeRequestToGetSingleItem(String path, ResultMatcher expectedStatus) throws Exception {
-        return mvc.perform(get(path).contentType(MediaType.APPLICATION_JSON))
+        return mvc.perform(get(path).contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Sample token"))
                 .andExpect(expectedStatus)
                 .andReturn().getResponse();
     }
@@ -49,7 +50,8 @@ public class TestRequestUtils {
     public MockHttpServletResponse makePutRequest(String path, Object content, ResultMatcher expectedStatus) throws Exception {
         return mvc.perform(put(path)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonFilter.castObjectToJsonString(content, FILTER_NAME, null)))
+                        .content(JsonFilter.castObjectToJsonString(content, FILTER_NAME, null))
+                        .header("Authorization", "Sample token"))
                 .andExpect(expectedStatus)
                 .andReturn().getResponse();
     }
