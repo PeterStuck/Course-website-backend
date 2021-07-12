@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peterstuck.coursewebsitebackend.exceptions.CourseNotFoundException;
 import peterstuck.coursewebsitebackend.exceptions.NotAnAuthorException;
+import peterstuck.coursewebsitebackend.exceptions.UserNotExistsException;
 import peterstuck.coursewebsitebackend.models.course.Comment;
 import peterstuck.coursewebsitebackend.models.course.Course;
 import peterstuck.coursewebsitebackend.models.course.CourseDescription;
@@ -78,9 +79,26 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     @Transactional
-    public Course save(Course course) {
+    public Course save(Course course, String token) throws UserNotExistsException {
         course.setCourseFeedback(new CourseFeedback());
+        checkAuthors(course, token);
+
         return courseRepository.save(course);
+    }
+
+    /**
+     * Checks if selected authors exists in database, adds requester as one of authors when not selected
+     * @throws UserNotExistsException when one of selected authors not exists in database
+     */
+    private void checkAuthors(Course course, String token) throws UserNotExistsException {
+        for (User author : course.getAuthors()) {
+            var tmpAuthor = userRepository.findByEmail(author.getEmail());
+            if (tmpAuthor == null)
+                throw new UserNotExistsException("User with email: " + author.getEmail() + " not exists.");
+        }
+
+        User user = userRepository.findByEmail(jwtUtil.extractUsername(token));
+        if (!course.getAuthors().contains(user) && user != null) course.getAuthors().add(user);
     }
 
     @Override

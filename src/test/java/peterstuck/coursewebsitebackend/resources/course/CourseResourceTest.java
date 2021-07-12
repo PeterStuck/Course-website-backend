@@ -59,12 +59,11 @@ class CourseResourceTest {
     private List<Course> testCourses;
     private List<Category> testCategories;
     private Course testCourse;
-    private CourseDescription testCourseDescription = CourseDescriptionFactory.createCourseDescription(
+    private final CourseDescription testCourseDescription = CourseDescriptionFactory.createCourseDescription(
             0.1,
             "short",
             "long"
     );
-
     private User testUser;
 
     private TestRequestUtils tru;
@@ -73,7 +72,7 @@ class CourseResourceTest {
 
     @BeforeEach
     void setUp() {
-        tru = new TestRequestUtils(Course.class, mvc, "CourseFilter");
+        tru = new TestRequestUtils(Course.class, mvc, "JsonFilter");
 
         initializeTestCategories();
 
@@ -237,6 +236,43 @@ class CourseResourceTest {
         verify(courseRepository).save(any());
         assertThat(course.getTitle(), equalTo(testCourse.getTitle()));
         assertThat(courseRepository.findAll(), hasSize(4));
+    }
+
+    @WithMockUser
+    @Test
+    void whenAdditionalAuthorWasPassedAndNotExistsInDatabaseThenReturnStatus400AndMessage() throws Exception {
+        testCourse.getAuthors().add(testUser);
+        when(userRepository.findByEmail(any())).thenReturn(null);
+
+        String response = tru.makePostRequest(BASE_PATH, testCourse, status().isBadRequest()).getContentAsString();
+
+        assertThat(response, containsString("User with email: " + testUser.getEmail() + " not exists."));
+    }
+
+    @WithMockUser
+    @Test
+    void whenRequesterToCreateCourseNotInAuthorsThenAddHimBasedOnJWT() throws Exception {
+        when(userRepository.findByEmail(testUser.getEmail())).thenReturn(testUser);
+        when(jwtUtil.extractUsername(any())).thenReturn(testUser.getEmail());
+        when(courseRepository.save(testCourse)).thenReturn(testCourse);
+
+        String response = tru.makePostRequest(BASE_PATH, testCourse, status().isCreated()).getContentAsString();
+
+        assertThat(response, containsString(testCourse.getTitle()));
+        assertThat(response, containsString(testUser.getEmail()));
+    }
+
+    @WithMockUser
+    @Test
+    void whenRequesterAlreadyInAuthorsListDoNotDuplicate() throws Exception {
+        testCourse.getAuthors().add(testUser);
+        when(userRepository.findByEmail(testUser.getEmail())).thenReturn(testUser);
+        when(jwtUtil.extractUsername(any())).thenReturn(testUser.getEmail());
+        when(courseRepository.save(testCourse)).thenReturn(testCourse);
+
+        tru.makePostRequest(BASE_PATH, testCourse, status().isCreated());
+
+        assertThat(testCourse.getAuthors(), hasSize(1));
     }
 
     @WithMockUser

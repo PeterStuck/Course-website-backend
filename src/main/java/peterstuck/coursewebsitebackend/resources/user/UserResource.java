@@ -26,7 +26,7 @@ public class UserResource {
     @Qualifier("userServiceImpl")
     private UserService service;
 
-    private final String FILTER_NAME = "UserFilter";
+    private final String FILTER_NAME = "JsonFilter";
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping

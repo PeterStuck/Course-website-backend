@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-@JsonFilter("CourseFilter")
+@JsonFilter("JsonFilter")
 @Getter
 @Setter
 @ToString
@@ -88,7 +88,7 @@ public class Course {
     private List<User> students;
 
     // TODO check if lazy init exception occur
-    @JsonFilter("UserFilter")
+//    @JsonFilter("UserFilter")
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "course_website_user",

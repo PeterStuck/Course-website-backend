@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import peterstuck.coursewebsitebackend.exceptions.CourseNotFoundException;
 import peterstuck.coursewebsitebackend.exceptions.NotAnAuthorException;
+import peterstuck.coursewebsitebackend.exceptions.UserNotExistsException;
 
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -22,8 +23,11 @@ public class CourseAdvisor extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(getStandardErrorResponse(ex), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(NotAnAuthorException.class)
-    public ResponseEntity<Object> handleNotAnAuthorException(NotAnAuthorException ex) {
+    @ExceptionHandler({
+            NotAnAuthorException.class,
+            UserNotExistsException.class
+    })
+    public ResponseEntity<Object> handleNotAnAuthorException(Exception ex) {
         return new ResponseEntity<>(getStandardErrorResponse(ex), HttpStatus.BAD_REQUEST);
     }
 

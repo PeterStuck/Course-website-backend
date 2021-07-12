@@ -19,8 +19,8 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
             if(converter instanceof MappingJackson2HttpMessageConverter) {
                 ObjectMapper mapper = ((MappingJackson2HttpMessageConverter) converter).getObjectMapper();
                 mapper.setFilterProvider(new SimpleFilterProvider()
-                        .addFilter("CourseFilter", SimpleBeanPropertyFilter.serializeAll())
-                        .addFilter("UserFilter", SimpleBeanPropertyFilter.serializeAll())
+                        .setFailOnUnknownId(false)
+                        .addFilter("JsonFilter", SimpleBeanPropertyFilter.serializeAll())
                 );
             }
         }

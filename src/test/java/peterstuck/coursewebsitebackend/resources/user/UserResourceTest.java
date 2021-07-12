@@ -56,7 +56,7 @@ class UserResourceTest {
 
     @BeforeEach
     void setUp() {
-        tru = new TestRequestUtils(User.class, mvc, "UserFilter");
+        tru = new TestRequestUtils(User.class, mvc, "JsonFilter");
 
         initializeTestUsers();
     }

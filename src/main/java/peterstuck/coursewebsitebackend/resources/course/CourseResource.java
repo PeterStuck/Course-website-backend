@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import peterstuck.coursewebsitebackend.exceptions.CourseNotFoundException;
 import peterstuck.coursewebsitebackend.exceptions.NotAnAuthorException;
+import peterstuck.coursewebsitebackend.exceptions.UserNotExistsException;
 import peterstuck.coursewebsitebackend.models.course.Course;
 import peterstuck.coursewebsitebackend.services.course.CourseService;
 import peterstuck.coursewebsitebackend.utils.JsonFilter;
@@ -28,7 +29,7 @@ public class CourseResource {
     @Qualifier(value = "courseServiceImpl")
     private CourseService service;
 
-    private final String FILTER_NAME = "CourseFilter";
+    private final String FILTER_NAME = "JsonFilter";
 
     @GetMapping
     @ApiOperation(value = "returns all courses", notes = """
@@ -102,8 +103,10 @@ public class CourseResource {
     @ApiOperation(value = "adds new course", notes = "Adds new course only when course object is valid.")
     public Course addCourse(
             @ApiParam(value = "new course object, should provide basic information about itself and category/ies", required = true)
-            @Valid @RequestBody Course course) throws JsonProcessingException {
-        service.save(course);
+            @Valid @RequestBody Course course,
+            @ApiParam(required = true)
+            @RequestHeader("Authorization") String authHeader) throws JsonProcessingException, UserNotExistsException {
+        service.save(course, authHeader);
 
         return (Course) JsonFilter.filterFields(course, FILTER_NAME, new String[]{ "courseFeedback" });
     }
@@ -117,6 +120,7 @@ public class CourseResource {
     public Course updateCourse(
             @ApiParam(required = true)
             @PathVariable Long id,
+            @ApiParam(required = true)
             @RequestHeader("Authorization") String authHeader,
             @ApiParam(value = "course with updated data", required = true)
             @Valid @RequestBody Course updatedCourse
@@ -134,6 +138,7 @@ public class CourseResource {
                     Endpoint available only for course author and page admin.""")
     public String deleteCourse(
             @PathVariable Long id,
+            @ApiParam(required = true)
             @RequestHeader("Authorization") String authHeader) throws CourseNotFoundException, NotAnAuthorException {
         service.delete(id, authHeader);
 
