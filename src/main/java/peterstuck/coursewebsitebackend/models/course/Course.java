@@ -5,9 +5,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import peterstuck.coursewebsitebackend.models.user.User;
-import peterstuck.coursewebsitebackend.models.user.UserActivity;
 
 import javax.persistence.*;
 import javax.validation.Valid;
@@ -67,12 +69,12 @@ public class Course {
     @NotNull(message = "Price is mandatory.")
     private Double price;
 
+    @JsonIgnoreProperties(value = {"course", "hibernateLazyInitializer"})
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "course_description_id")
     @ApiModelProperty(required = true)
     @Valid
     @NotNull(message = "Course must have a description.")
-    @JsonIgnoreProperties(value = {"course", "hibernateLazyInitializer"})
     private CourseDescription courseDescription;
 
     @JsonIgnoreProperties(value = {"course", "hibernateLazyInitializer"})
@@ -85,6 +87,7 @@ public class Course {
     @ManyToMany(mappedBy = "purchasedCourses")
     private List<User> students;
 
+    // TODO check if lazy init exception occur
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "course_website_user",

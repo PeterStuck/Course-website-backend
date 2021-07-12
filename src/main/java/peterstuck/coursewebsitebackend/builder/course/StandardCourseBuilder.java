@@ -22,13 +22,6 @@ public class StandardCourseBuilder implements CourseBuilder {
     }
 
     @Override
-    public CourseBuilder buildRates(List<Rate> rates) {
-        course.getCourseFeedback().setRates(rates);
-
-        return this;
-    }
-
-    @Override
     public CourseBuilder buildLanguages(Set<Language> languages) {
         course.setLanguages(languages);
 
@@ -52,13 +45,6 @@ public class StandardCourseBuilder implements CourseBuilder {
     @Override
     public CourseBuilder buildComments(List<Comment> comments) {
         course.getCourseFeedback().setComments(comments);
-
-        return this;
-    }
-
-    @Override
-    public CourseBuilder buildLastUpdate(Long lastUpdate) {
-        course.setLastUpdate(new Date().getTime());
 
         return this;
     }

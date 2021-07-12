@@ -1,14 +1,16 @@
 package peterstuck.coursewebsitebackend.models.course;
 
-import io.swagger.annotations.ApiModel;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "course_feedback")
 public class CourseFeedback {
@@ -17,11 +19,9 @@ public class CourseFeedback {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "courseFeedback")
+    @JsonIgnoreProperties(value = {"course_feedback", "hibernateLazyInitializer"})
+    @OneToMany(mappedBy = "courseFeedback", cascade = CascadeType.ALL)
     private List<Comment> comments;
-
-    @OneToMany(mappedBy = "courseFeedback")
-    private List<Rate> rates;
 
     @ApiModelProperty(value = "Average rate from all rates for course")
     private double avgRate;
@@ -30,8 +30,6 @@ public class CourseFeedback {
 
     public CourseFeedback() {
         comments = new ArrayList<>();
-        rates = new ArrayList<>();
-
         avgRate = 0.0;
         ratesCount = 0;
     }

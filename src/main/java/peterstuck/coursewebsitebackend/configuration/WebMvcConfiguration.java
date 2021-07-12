@@ -20,6 +20,7 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
                 ObjectMapper mapper = ((MappingJackson2HttpMessageConverter) converter).getObjectMapper();
                 mapper.setFilterProvider(new SimpleFilterProvider()
                         .addFilter("CourseFilter", SimpleBeanPropertyFilter.serializeAll())
+                        .addFilter("UserFilter", SimpleBeanPropertyFilter.serializeAll())
                 );
             }
         }

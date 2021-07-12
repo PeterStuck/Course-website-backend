@@ -11,8 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import peterstuck.coursewebsitebackend.factory.course.CourseFactory;
 import peterstuck.coursewebsitebackend.factory.course_description.CourseDescriptionFactory;
-import peterstuck.coursewebsitebackend.models.course.Category;
-import peterstuck.coursewebsitebackend.models.course.CourseFeedback;
+import peterstuck.coursewebsitebackend.models.course.*;
 import peterstuck.coursewebsitebackend.models.user.Role;
 import peterstuck.coursewebsitebackend.models.user.User;
 import peterstuck.coursewebsitebackend.models.user.UserActivity;
@@ -51,11 +50,11 @@ public class InitRunner implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        initializeCategories();
-        initializeCourses();
-
         initializeRoles();
         initializeUsers();
+
+        initializeCategories();
+        initializeCourses();
     }
 
     void initializeCategories() {
@@ -92,6 +91,7 @@ public class InitRunner implements CommandLineRunner {
                         Collections.singletonList("Wszystko wyjaśnione jest w kursie. Nie musisz posiadać żadnych wiadomości. Wystarczą dobre chęci :)")),
                 new ArrayList<>(Arrays.asList(categoryRepository.findById(1).get()))
         );
+        course.setCourseFeedback(new CourseFeedback());
 
         var course2 = CourseFactory.createCourse(
                 "Kurs Tworzenia Stron WWW w HTML i CSS",
@@ -113,6 +113,16 @@ public class InitRunner implements CommandLineRunner {
                         Collections.singletonList("Wszystko wyjaśnione jest w kursie. Nie musisz posiadać żadnych wiadomości. Wystarczą dobre chęci :)")),
                 new ArrayList<>(Arrays.asList(categoryRepository.findById(1).get()))
         );
+        var feedback = new CourseFeedback();
+
+        var sampleComment = new Comment();
+        sampleComment.setAuthor(userRepository.findByEmail("email@email.com").getUserActivity());
+        sampleComment.setDescription("Some comment");
+        sampleComment.setCourseFeedback(feedback);
+        sampleComment.setRate(Rating.FIVE.starValue);
+
+        feedback.getComments().add(sampleComment);
+        course2.setCourseFeedback(feedback);
 
         courseRepository.save(course);
         courseRepository.save(course2);

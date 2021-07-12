@@ -7,21 +7,24 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 public class JsonFilter {
 
     private static ObjectMapper mapper = new ObjectMapper();
 
-    public static Object filterFields(Object obj, String filterName, String[] exceptFields) throws JsonProcessingException {
+    public static Object filterFields(Object obj, String filterName, String ... exceptFields) throws JsonProcessingException {
         String objAsString = castObjectToJsonString(obj, filterName, exceptFields);
+
+        System.out.println(objAsString);
 
         return mapper.readValue(objAsString, obj.getClass());
     }
 
-    public static String castObjectToJsonString(Object obj, String filterName, String[] exceptFields) throws JsonProcessingException {
+    public static String castObjectToJsonString(Object obj, String filterName, String ... exceptFields) throws JsonProcessingException {
         SimpleBeanPropertyFilter simpleBeanPropertyFilter =
                 SimpleBeanPropertyFilter.serializeAllExcept(
-                        (exceptFields != null ? String.join(" ", exceptFields) : "")
+                        (exceptFields != null ? exceptFields : new String[0])
                 );
 
         FilterProvider filterProvider = new SimpleFilterProvider()

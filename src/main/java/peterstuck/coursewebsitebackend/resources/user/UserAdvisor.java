@@ -1,7 +1,5 @@
 package peterstuck.coursewebsitebackend.resources.user;
 
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,7 +14,7 @@ import java.util.Map;
 public class UserAdvisor {
 
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<Object> handleUsernameNotFoundException(UsernameNotFoundException ex) {
+    public ResponseEntity<Object> handleUsernameNotFoundException() {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", new Date().getTime());
         body.put("message", "Wrong token.");

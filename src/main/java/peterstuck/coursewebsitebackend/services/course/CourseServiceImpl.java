@@ -5,10 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peterstuck.coursewebsitebackend.exceptions.CourseNotFoundException;
+import peterstuck.coursewebsitebackend.models.course.Comment;
 import peterstuck.coursewebsitebackend.models.course.Course;
 import peterstuck.coursewebsitebackend.models.course.CourseDescription;
 import peterstuck.coursewebsitebackend.models.course.CourseFeedback;
-import peterstuck.coursewebsitebackend.models.course.Rate;
 import peterstuck.coursewebsitebackend.repositories.CourseRepository;
 
 import java.util.Date;
@@ -46,10 +46,11 @@ public class CourseServiceImpl implements CourseService {
 
     private void computeAvgAndCountOfRates(Course course) {
         var courseFeedback = course.getCourseFeedback();
+        var courseComments = course.getCourseFeedback().getComments();
 
-        double avg = courseFeedback.getRates().stream().mapToDouble(Rate::getRateValue).sum() / courseFeedback.getRates().size();
+        double avg = courseComments.stream().mapToDouble(Comment::getRate).sum() / courseComments.size();
         courseFeedback.setAvgRate(avg);
-        courseFeedback.setRatesCount(courseFeedback.getRates().size());
+        courseFeedback.setRatesCount(courseComments.size());
     }
 
     private void initializeLazyObjects(Course course) {
@@ -57,7 +58,6 @@ public class CourseServiceImpl implements CourseService {
         Hibernate.initialize(course.getCategories());
         Hibernate.initialize(course.getAuthors());
         Hibernate.initialize(course.getCourseFeedback().getComments());
-        Hibernate.initialize(course.getCourseFeedback().getRates());
 
         if (course.getCourseDescription() != null) {
             Hibernate.initialize(course.getCourseDescription());

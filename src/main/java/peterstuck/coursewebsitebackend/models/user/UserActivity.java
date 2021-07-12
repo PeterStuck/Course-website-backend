@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import peterstuck.coursewebsitebackend.models.course.Comment;
-import peterstuck.coursewebsitebackend.models.course.Rate;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -26,12 +25,7 @@ public class UserActivity {
     @OneToMany(mappedBy = "author")
     private List<Comment> comments;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "author")
-    private List<Rate> rates;
-
     public UserActivity() {
         comments = new ArrayList<>();
-        rates = new ArrayList<>();
     }
 }

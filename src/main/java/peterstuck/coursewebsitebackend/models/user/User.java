@@ -1,10 +1,12 @@
 package peterstuck.coursewebsitebackend.models.user;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import peterstuck.coursewebsitebackend.models.course.Course;
 
 import javax.persistence.*;
@@ -15,8 +17,10 @@ import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
+@JsonFilter("UserFilter")
 @Getter
 @Setter
+@ToString
 @AllArgsConstructor
 @Entity
 @Table(name = "website_user")
@@ -39,12 +43,10 @@ public class User {
     @Pattern(regexp = "^[A-Z][A-Za-z]+$", message = "Surname should have first capital letter.")
     private String lastName;
 
-    @JsonIgnore
     @Column
     @Size(min = 8, message = "Password should have at least 8 characters of length.")
     private String password;
 
-    @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(
             name = "website_user_role",
@@ -53,6 +55,7 @@ public class User {
     )
     private List<Role> roles;
 
+    // TODO check for lazy exception
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "website_user_course",
@@ -61,6 +64,7 @@ public class User {
     )
     private List<Course> purchasedCourses;
 
+    // TODO check for lazy exception
     @ManyToMany(mappedBy = "authors", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     private List<Course> ownCourses;
 
@@ -70,7 +74,6 @@ public class User {
     @NotNull(message = "Each user should have user details associated.")
     private UserDetail userDetail;
 
-    @JsonIgnore
     @JsonIgnoreProperties(value = {"website_user", "hibernateLazyInitializer"})
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_activity_id")

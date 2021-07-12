@@ -9,8 +9,6 @@ public interface CourseBuilder {
 
     CourseBuilder buildTitle(String title);
 
-    CourseBuilder buildRates(List<Rate> rates);
-
     CourseBuilder buildLanguages(Set<Language> languages);
 
     CourseBuilder buildSubtitles(Set<Language> subtitles);
@@ -18,8 +16,6 @@ public interface CourseBuilder {
     CourseBuilder buildCategories(List<Category> categories);
 
     CourseBuilder buildComments(List<Comment> comments);
-
-    CourseBuilder buildLastUpdate(Long lastUpdate);
 
     CourseBuilder buildPrice(Double price);
 

@@ -56,7 +56,7 @@ class UserResourceTest {
 
     @BeforeEach
     void setUp() {
-        tru = new TestRequestUtils(User.class, mvc, "");
+        tru = new TestRequestUtils(User.class, mvc, "UserFilter");
 
         initializeTestUsers();
     }

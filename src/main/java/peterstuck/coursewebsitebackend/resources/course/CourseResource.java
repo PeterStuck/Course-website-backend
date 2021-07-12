@@ -44,7 +44,7 @@ public class CourseResource {
                     .collect(Collectors.toList());
         }
 
-        return getResponseAndStatus((List<Course>) JsonFilter.filterFields(courses, FILTER_NAME, new String[] { "courseDescription" }));
+        return getResponseAndStatus((List<Course>) JsonFilter.filterFields(courses, FILTER_NAME, new String[] { "courseDescription", "courseFeedback" }));
     }
 
     @GetMapping("/{id}")
@@ -104,7 +104,7 @@ public class CourseResource {
             @Valid @RequestBody Course course) throws JsonProcessingException {
         service.save(course);
 
-        return (Course) JsonFilter.filterFields(course, FILTER_NAME, null);
+        return (Course) JsonFilter.filterFields(course, FILTER_NAME, new String[]{ "courseFeedback" });
     }
 
     @PutMapping("/{id}")
@@ -120,7 +120,7 @@ public class CourseResource {
     ) throws CourseNotFoundException, JsonProcessingException {
         service.update(id, updatedCourse);
 
-        return (Course) JsonFilter.filterFields(updatedCourse, FILTER_NAME, null);
+        return (Course) JsonFilter.filterFields(updatedCourse, FILTER_NAME, new String[]{ "courseFeedback" });
     }
 
     @DeleteMapping("/{id}")
