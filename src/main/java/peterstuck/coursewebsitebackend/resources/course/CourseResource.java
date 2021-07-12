@@ -39,12 +39,7 @@ public class CourseResource {
     public ResponseEntity<Object> getAllCourses(
             @ApiParam(value = "additionally searches courses by titles containing keyword when provided")
             @RequestParam(required = false) String keyword) throws JsonProcessingException {
-        List<Course> courses = service.findAll();
-        if (keyword != null) {
-            courses = courses.stream()
-                    .filter(course -> checkCourseTitleContainsKeyword(course, keyword))
-                    .collect(Collectors.toList());
-        }
+        List<Course> courses = service.findAll(keyword);
 
         return getResponseAndStatus((List<Course>) JsonFilter.filterFields(courses, FILTER_NAME, new String[] { "courseDescription", "courseFeedback" }));
     }
@@ -67,28 +62,9 @@ public class CourseResource {
             @ApiParam(value = "additionally searches courses by titles containing keyword when provided")
             @RequestParam(required = false) String keyword
     ) throws JsonProcessingException {
-        List<Course> courses = service.findAll()
-                .stream()
-                .filter(course -> checkCourseHasCategoryWithId(course, categoryId))
-                .collect(Collectors.toList());
-
-        if (keyword != null) {
-            courses = courses.stream()
-                    .filter(course -> checkCourseTitleContainsKeyword(course, keyword))
-                    .collect(Collectors.toList());
-        }
+        List<Course> courses = service.findAllByCategory(keyword, categoryId);
 
         return getResponseAndStatus((List<Course>) JsonFilter.filterFields(courses, FILTER_NAME, new String[] { "courseDescription", "courseFeedback" }));
-    }
-
-    private boolean checkCourseTitleContainsKeyword(Course course, String keyword) {
-        return course.getTitle().toLowerCase().contains(keyword.toLowerCase());
-    }
-
-    private boolean checkCourseHasCategoryWithId(Course course, int categoryId) {
-        return course.getCategories()
-                .stream()
-                .anyMatch(category -> category.getId() == categoryId);
     }
 
     private ResponseEntity<Object> getResponseAndStatus(List<Course> courses) {

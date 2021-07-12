@@ -9,7 +9,12 @@ import java.util.List;
 
 public interface CourseService {
 
-    List<Course> findAll();
+    /**
+     * @param keyword optional additional filter by title
+     */
+    List<Course> findAll(String keyword);
+
+    List<Course> findAllByCategory(String keyword, int categoryId);
 
     Course findById(Long id) throws CourseNotFoundException;
 

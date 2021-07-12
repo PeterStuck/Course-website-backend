@@ -18,6 +18,7 @@ import peterstuck.coursewebsitebackend.utils.JwtUtil;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CourseServiceImpl implements CourseService {
@@ -33,14 +34,41 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     @Transactional
-    public List<Course> findAll() {
+    public List<Course> findAll(String keyword) {
         List<Course> courses = courseRepository.findAll();
+        if (keyword != null)
+            courses = filterCoursesByTitle(courses, keyword);
+
         courses.forEach(course -> {
             initializeLazyObjects(course);
             computeAvgAndCountOfRates(course);
         });
 
         return courses;
+    }
+
+    private List<Course> filterCoursesByTitle(List<Course> courses, String keyword) {
+        return courses.stream()
+                .filter(course -> checkCourseTitleContainsKeyword(course, keyword))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Course> findAllByCategory(String keyword, int categoryId) {
+        return this.findAll(keyword)
+                .stream()
+                .filter(course -> checkCourseHasCategoryWithId(course, categoryId))
+                .collect(Collectors.toList());
+    }
+
+    private boolean checkCourseTitleContainsKeyword(Course course, String keyword) {
+        return course.getTitle().toLowerCase().contains(keyword.toLowerCase());
+    }
+
+    private boolean checkCourseHasCategoryWithId(Course course, int categoryId) {
+        return course.getCategories()
+                .stream()
+                .anyMatch(category -> category.getId() == categoryId);
     }
 
     @Override
