@@ -6,17 +6,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import peterstuck.coursewebsitebackend.models.course.CourseFeedback;
-import peterstuck.coursewebsitebackend.resources.TestRequestUtils;
 import peterstuck.coursewebsitebackend.factory.course.CourseFactory;
 import peterstuck.coursewebsitebackend.factory.course_description.CourseDescriptionFactory;
 import peterstuck.coursewebsitebackend.models.course.Category;
 import peterstuck.coursewebsitebackend.models.course.Course;
 import peterstuck.coursewebsitebackend.models.course.CourseDescription;
+import peterstuck.coursewebsitebackend.models.course.CourseFeedback;
+import peterstuck.coursewebsitebackend.models.user.Role;
+import peterstuck.coursewebsitebackend.models.user.User;
+import peterstuck.coursewebsitebackend.models.user.UserActivity;
+import peterstuck.coursewebsitebackend.models.user.UserDetail;
 import peterstuck.coursewebsitebackend.repositories.CourseRepository;
+import peterstuck.coursewebsitebackend.repositories.UserRepository;
+import peterstuck.coursewebsitebackend.resources.TestRequestUtils;
+import peterstuck.coursewebsitebackend.utils.JwtUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,7 +34,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles("test")
@@ -38,8 +44,17 @@ class CourseResourceTest {
     @Autowired
     private MockMvc mvc;
 
+    @Autowired
+    private PasswordEncoder encoder;
+
     @MockBean
-    private CourseRepository repository;
+    private CourseRepository courseRepository;
+
+    @MockBean
+    private UserRepository userRepository;
+
+    @MockBean
+    private JwtUtil jwtUtil;
 
     private List<Course> testCourses;
     private List<Category> testCategories;
@@ -49,6 +64,8 @@ class CourseResourceTest {
             "short",
             "long"
     );
+
+    private User testUser;
 
     private TestRequestUtils tru;
 
@@ -63,6 +80,8 @@ class CourseResourceTest {
         initializeTestCourseList();
 
         initializeTestCourse();
+
+        initializeTestUser();
     }
 
     private void initializeTestCategories() {
@@ -97,13 +116,24 @@ class CourseResourceTest {
         testCourse.setCourseFeedback(new CourseFeedback());
     }
 
+    private void initializeTestUser() {
+        testUser = new User();
+        testUser.setEmail("email@email.com");
+        testUser.setFirstName("Name");
+        testUser.setLastName("Last");
+        testUser.setPassword(encoder.encode("user"));
+        testUser.setUserActivity(new UserActivity());
+        testUser.setRoles(Collections.singletonList(new Role("ROLE_USER")));
+        testUser.setUserDetail(new UserDetail());
+    }
+
     @Test
     void givenCoursesWhenGetCoursesThenStatus200AndListOfExistingCourses() throws Exception {
-        when(repository.findAll()).thenReturn(testCourses);
+        when(courseRepository.findAll()).thenReturn(testCourses);
 
         List<Course> courses = (List<Course>) tru.makeRequestToGetItems(BASE_PATH, status().isOk());
 
-        verify(repository).findAll();
+        verify(courseRepository).findAll();
 
         assertThat(courses, hasSize(3));
         assertThat(courses.get(0).getTitle(), equalTo("TEST 0"));
@@ -124,7 +154,7 @@ class CourseResourceTest {
         testCourses.add(course);
         testCourses.add(course2);
 
-        when(repository.findAll()).thenReturn(testCourses);
+        when(courseRepository.findAll()).thenReturn(testCourses);
 
         String keyword = "KEYWORD";
         List<Course> filteredCourses = (List<Course>) tru.makeRequestToGetItems(BASE_PATH + "?keyword=" + keyword, status().isOk());
@@ -137,12 +167,12 @@ class CourseResourceTest {
     @Test
     void whenCourseWithGivenIdExistsThenReturnCourse() throws Exception {
         long id = 1L;
-        when(repository.findById(id)).thenReturn(Optional.ofNullable(testCourse));
+        when(courseRepository.findById(id)).thenReturn(Optional.ofNullable(testCourse));
 
         var response = tru.makeRequestToGetSingleItem(BASE_PATH + "/" + id, status().isOk());
         Course course = TestRequestUtils.mapper.readValue(response.getContentAsString(), Course.class);
 
-        verify(repository).findById(id);
+        verify(courseRepository).findById(id);
         assertThat(course.getTitle(), equalTo(testCourse.getTitle()));
         assertThat(course.getPrice(), equalTo(testCourse.getPrice()));
     }
@@ -157,17 +187,17 @@ class CourseResourceTest {
 
     @Test
     void whenNoCoursesWithCategoryReturnEmptyListWithStatus204() throws Exception {
-        when(repository.findAll()).thenReturn(testCourses);
+        when(courseRepository.findAll()).thenReturn(testCourses);
         List<Course> courses = (List<Course>) tru.makeRequestToGetItems(BASE_PATH + "/category/999", status().isNoContent());
 
-        verify(repository).findAll();
+        verify(courseRepository).findAll();
         assertThat(courses, hasSize(0));
     }
 
     @Test
     void shouldReturnFilteredListOfCoursesWithGivenCategoryIdAndStatus200() throws Exception {
         testCourses.get(0).setCategories(Collections.emptyList());
-        when(repository.findAll()).thenReturn(testCourses);
+        when(courseRepository.findAll()).thenReturn(testCourses);
 
         List<Course> courses = (List<Course>) tru.makeRequestToGetItems(BASE_PATH + "/category/1", status().isOk());
 
@@ -183,11 +213,11 @@ class CourseResourceTest {
         course2.setCourseFeedback(new CourseFeedback());
         testCourses.add(course);
         testCourses.add(course2);
-        when(repository.findAll()).thenReturn(testCourses);
+        when(courseRepository.findAll()).thenReturn(testCourses);
 
         String keyword = "KeYwoRD";
         List<Course> courses = (List<Course>) tru.makeRequestToGetItems(BASE_PATH + "/category/1?keyword=" + keyword, status().isOk());
-        verify(repository).findAll();
+        verify(courseRepository).findAll();
         assertThat(courses, hasSize(2));
         assertThat(courses.get(0).getTitle(), equalTo("Course with keyword 1"));
     }
@@ -195,8 +225,8 @@ class CourseResourceTest {
     @WithMockUser
     @Test
     void shouldAddNewCourseAndReturnNewObjectWithStatus201() throws Exception {
-        when(repository.findAll()).thenReturn(testCourses);
-        when(repository.save(any())).then(invocationOnMock -> {
+        when(courseRepository.findAll()).thenReturn(testCourses);
+        when(courseRepository.save(any())).then(invocationOnMock -> {
             testCourses.add(testCourse);
             return testCourse;
         });
@@ -204,25 +234,41 @@ class CourseResourceTest {
         var response = tru.makePostRequest(BASE_PATH, testCourse, status().isCreated());
         Course course = TestRequestUtils.mapper.readValue(response.getContentAsString(), Course.class);
 
-        verify(repository).save(any());
+        verify(courseRepository).save(any());
         assertThat(course.getTitle(), equalTo(testCourse.getTitle()));
-        assertThat(repository.findAll(), hasSize(4));
+        assertThat(courseRepository.findAll(), hasSize(4));
     }
 
     @WithMockUser
     @Test
     void shouldDeleteCourseWhenExists() throws Exception {
+        testCourse.getAuthors().add(testUser);
         testCourses.add(testCourse);
-        when(repository.findAll()).thenReturn(testCourses);
-        when(repository.findById(1L)).then(invocationOnMock -> {
+        when(courseRepository.findAll()).thenReturn(testCourses);
+        when(courseRepository.findById(1L)).then(invocationOnMock -> {
                 testCourses.remove(testCourse);
                 return Optional.ofNullable(testCourse);
         });
+        when(userRepository.findByEmail(any())).thenReturn(testUser);
+        when(jwtUtil.extractUsername(any())).thenReturn("some@email.com");
 
         tru.makeDeleteRequest(BASE_PATH + "/1", status().isOk());
 
-        verify(repository).delete(testCourse);
-        assertThat(repository.findAll(), hasSize(3));
+        verify(courseRepository).delete(testCourse);
+        assertThat(courseRepository.findAll(), hasSize(3));
+    }
+
+    @WithMockUser
+    @Test
+    void whenRequesterAttemptToDeleteCourseAndIsNotAnAuthorThenReturnStatus400AndMessage() throws Exception {
+        when(courseRepository.findById(any())).thenReturn(Optional.ofNullable(testCourse));
+        when(userRepository.findByEmail(any())).thenReturn(testUser);
+        when(jwtUtil.extractUsername(any())).thenReturn(testUser.getEmail());
+
+        String response = tru.makeDeleteRequest(BASE_PATH + "/99", status().isBadRequest()).getContentAsString();
+
+        assertThat(response, containsString("You are allow to update or delete only own courses."));
+        assertThat(response, containsString("timestamp"));
     }
 
     @WithMockUser
@@ -236,15 +282,29 @@ class CourseResourceTest {
     void shouldUpdateWhenCourseDataIsValid() throws Exception {
         long id = 1L;
         testCourse.setId(id);
-        when(repository.findById(id)).thenReturn(Optional.ofNullable(testCourse));
+        testCourse.getAuthors().add(testUser);
+        when(courseRepository.findById(id)).thenReturn(Optional.ofNullable(testCourse));
+        when(userRepository.findByEmail(any())).thenReturn(testUser);
+        when(jwtUtil.extractUsername(any())).thenReturn("some@email.com");
+
         var updatedTestCourse = cloneCourse(testCourse);
         updatedTestCourse.setTitle("NEW TITLE");
-
         tru.makePutRequest(BASE_PATH + "/1", updatedTestCourse, status().isOk());
 
-        verify(repository).findById(id);
-        verify(repository).save(testCourse);
-        assertThat(repository.findById(id).get().getTitle(), equalTo("NEW TITLE"));
+        verify(courseRepository).findById(id);
+        verify(courseRepository).save(testCourse);
+        assertThat(courseRepository.findById(id).get().getTitle(), equalTo("NEW TITLE"));
+    }
+
+    @WithMockUser
+    @Test
+    void whenRequesterToUpdateCourseIsNotOneOfAuthorsShouldReturnStatus400AndAppropriateMessage() throws Exception {
+        when(courseRepository.findById(1L)).thenReturn(Optional.ofNullable(testCourse));
+        when(userRepository.findByEmail(any())).thenReturn(testUser);
+
+        String response = tru.makePutRequest(BASE_PATH + "/1", testCourse, status().isBadRequest()).getContentAsString();
+
+        assertThat(response, containsString("You are allow to update or delete only own courses."));
     }
 
     @WithMockUser

@@ -92,6 +92,7 @@ public class InitRunner implements CommandLineRunner {
                 new ArrayList<>(Arrays.asList(categoryRepository.findById(1).get()))
         );
         course.setCourseFeedback(new CourseFeedback());
+        course.setAuthors(new ArrayList<>(Collections.singletonList(userRepository.findByEmail("email@email.com"))));
 
         var course2 = CourseFactory.createCourse(
                 "Kurs Tworzenia Stron WWW w HTML i CSS",

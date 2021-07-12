@@ -32,7 +32,8 @@ public class TestRequestUtils {
 
     public List<?> makeRequestToGetItems(String path, ResultMatcher expectedStatus) throws Exception {
         MockHttpServletResponse response =  mvc.perform(get(path)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Sample token"))
                 .andExpect(expectedStatus)
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andReturn().getResponse();
@@ -58,14 +59,16 @@ public class TestRequestUtils {
 
     public MockHttpServletResponse makePostRequest(String path, Object content, ResultMatcher expectedStatus) throws Exception {
         return mvc.perform(post(path)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonFilter.castObjectToJsonString(content, FILTER_NAME, null)))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(JsonFilter.castObjectToJsonString(content, FILTER_NAME, null))
+                    .header("Authorization", "Sample token"))
                 .andExpect(expectedStatus)
                 .andReturn().getResponse();
     }
 
     public MockHttpServletResponse makeDeleteRequest(String path, ResultMatcher expectedStatus) throws Exception {
-        return mvc.perform(delete(path))
+        return mvc.perform(delete(path)
+                .header("Authorization", "Sample token"))
                 .andExpect(expectedStatus)
                 .andReturn().getResponse();
     }

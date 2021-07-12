@@ -5,11 +5,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import peterstuck.coursewebsitebackend.exceptions.CourseNotFoundException;
+import peterstuck.coursewebsitebackend.exceptions.NotAnAuthorException;
 import peterstuck.coursewebsitebackend.models.course.Comment;
 import peterstuck.coursewebsitebackend.models.course.Course;
 import peterstuck.coursewebsitebackend.models.course.CourseDescription;
 import peterstuck.coursewebsitebackend.models.course.CourseFeedback;
+import peterstuck.coursewebsitebackend.models.user.User;
 import peterstuck.coursewebsitebackend.repositories.CourseRepository;
+import peterstuck.coursewebsitebackend.repositories.UserRepository;
+import peterstuck.coursewebsitebackend.utils.JwtUtil;
 
 import java.util.Date;
 import java.util.List;
@@ -18,12 +22,18 @@ import java.util.List;
 public class CourseServiceImpl implements CourseService {
 
     @Autowired
-    private CourseRepository repository;
+    private CourseRepository courseRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Override
     @Transactional
     public List<Course> findAll() {
-        List<Course> courses = repository.findAll();
+        List<Course> courses = courseRepository.findAll();
         courses.forEach(course -> {
             initializeLazyObjects(course);
             computeAvgAndCountOfRates(course);
@@ -35,7 +45,7 @@ public class CourseServiceImpl implements CourseService {
     @Override
     @Transactional
     public Course findById(Long id) throws CourseNotFoundException {
-        Course course = repository.findById(id)
+        Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new CourseNotFoundException("Course with id: " + id + " not found!"));
 
         initializeLazyObjects(course);
@@ -70,21 +80,23 @@ public class CourseServiceImpl implements CourseService {
     @Transactional
     public Course save(Course course) {
         course.setCourseFeedback(new CourseFeedback());
-        return repository.save(course);
+        return courseRepository.save(course);
     }
 
     @Override
     @Transactional
-    public Course update(Long id, Course updated) throws CourseNotFoundException {
+    public Course update(Long id, String token, Course updated) throws CourseNotFoundException, NotAnAuthorException {
         Course course = this.findById(id);
+        checkIsAnAuthorOrThrowException(course, token);
+
         updateCourse(course, updated);
-        save(course);
+        courseRepository.save(course);
 
         return updated;
     }
 
     /**
-     * It should not be possible to override comments, rates, avgRate, ratesCount
+     * It should not be possible to override courseFeedback
      * @param original course to update
      * @param updated course with updated data
      */
@@ -113,9 +125,24 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     @Transactional
-    public void delete(Long id) throws CourseNotFoundException {
+    public void delete(Long id, String token) throws CourseNotFoundException, NotAnAuthorException {
         Course course = this.findById(id);
-        repository.delete(course);
+        checkIsAnAuthorOrThrowException(course, token);
+        courseRepository.delete(course);
+    }
+
+    /**
+     * @throws NotAnAuthorException when requester was not recognized as author of course based on JWT.
+     */
+    private void checkIsAnAuthorOrThrowException(Course course, String token) throws NotAnAuthorException {
+        token = token.substring(7);
+        User user = userRepository.findByEmail(jwtUtil.extractUsername(token));
+
+        boolean isAnAuthor = course.getAuthors()
+                .stream()
+                .anyMatch(author -> author.equals(user));
+
+        if (!isAnAuthor) throw new NotAnAuthorException("You are allow to update or delete only own courses.");
     }
 
 }

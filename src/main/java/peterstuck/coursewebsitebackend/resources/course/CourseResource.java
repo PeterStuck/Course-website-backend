@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import peterstuck.coursewebsitebackend.exceptions.CourseNotFoundException;
+import peterstuck.coursewebsitebackend.exceptions.NotAnAuthorException;
 import peterstuck.coursewebsitebackend.models.course.Course;
 import peterstuck.coursewebsitebackend.services.course.CourseService;
 import peterstuck.coursewebsitebackend.utils.JsonFilter;
@@ -114,11 +115,13 @@ public class CourseResource {
                     Returns status 404 when course not found and status 400 when there is problem with updated course data.
                     Endpoint available only for course author and page admin.""")
     public Course updateCourse(
+            @ApiParam(required = true)
             @PathVariable Long id,
+            @RequestHeader("Authorization") String authHeader,
             @ApiParam(value = "course with updated data", required = true)
             @Valid @RequestBody Course updatedCourse
-    ) throws CourseNotFoundException, JsonProcessingException {
-        service.update(id, updatedCourse);
+    ) throws CourseNotFoundException, JsonProcessingException, NotAnAuthorException {
+        service.update(id, authHeader, updatedCourse);
 
         return (Course) JsonFilter.filterFields(updatedCourse, FILTER_NAME, new String[]{ "courseFeedback" });
     }
@@ -129,8 +132,10 @@ public class CourseResource {
                     Deletes course only when course with given ID exists.
                     Returns status 404 when course not found.
                     Endpoint available only for course author and page admin.""")
-    public String deleteCourse(@PathVariable Long id) throws CourseNotFoundException {
-        service.delete(id);
+    public String deleteCourse(
+            @PathVariable Long id,
+            @RequestHeader("Authorization") String authHeader) throws CourseNotFoundException, NotAnAuthorException {
+        service.delete(id, authHeader);
 
         return "Course with ID: " + id + " was successfully deleted.";
     }

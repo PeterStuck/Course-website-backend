@@ -44,7 +44,7 @@ public class User {
     private String firstName;
 
     @Column
-    @Pattern(regexp = "^([A-Z][A-Za-z])?$", message = "Surname should have first capital letter.")
+    @Pattern(regexp = "^([A-Z][A-Za-z]*)?$", message = "Surname should have first capital letter.")
     @ApiModelProperty(notes = "Optional user description.")
     private String lastName;
 

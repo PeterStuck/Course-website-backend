@@ -16,8 +16,6 @@ public class JsonFilter {
     public static Object filterFields(Object obj, String filterName, String ... exceptFields) throws JsonProcessingException {
         String objAsString = castObjectToJsonString(obj, filterName, exceptFields);
 
-        System.out.println(objAsString);
-
         return mapper.readValue(objAsString, obj.getClass());
     }
 

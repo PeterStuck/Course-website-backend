@@ -88,6 +88,7 @@ public class Course {
     private List<User> students;
 
     // TODO check if lazy init exception occur
+    @JsonFilter("UserFilter")
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "course_website_user",
@@ -98,6 +99,7 @@ public class Course {
 
     public Course() {
         categories = new ArrayList<>();
+        authors = new ArrayList<>();
         lastUpdate = new Date().getTime();
     }
 }
