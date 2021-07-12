@@ -64,12 +64,7 @@ public class UserServiceImpl implements UserService {
      * Returns new JWT after user update
      */
     public String update(String token, User updatedUser) throws UsernameNotFoundException {
-        token = token.substring(7);
-        User actualUser = userRepository.findByEmail(jwtUtil.extractUsername(token));
-        if (actualUser == null) {
-            throw new UsernameNotFoundException("Wrong token.");
-        }
-
+        User actualUser = extractUsernameAndGetUser(token);
         updateUser(actualUser, updatedUser);
         userRepository.save(actualUser);
 
@@ -86,11 +81,18 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User getUserInfo(String token) throws UsernameNotFoundException {
-        token = token.substring(7);
-
-        User user = userRepository.findByEmail(jwtUtil.extractUsername(token));
+        User user = extractUsernameAndGetUser(token);
         initUserCollections(user);
 
+        return user;
+    }
+
+    private User extractUsernameAndGetUser(String token) {
+        token = token.substring(7);
+        User user = userRepository.findByEmail(jwtUtil.extractUsername(token));
+        if (user == null) {
+            throw new UsernameNotFoundException("Wrong token.");
+        }
         return user;
     }
 
