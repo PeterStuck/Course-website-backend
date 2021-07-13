@@ -24,6 +24,7 @@ import peterstuck.coursewebsitebackend.repositories.UserRepository;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 @Profile("!test")
 @Component
@@ -71,64 +72,52 @@ public class InitRunner implements CommandLineRunner {
     }
 
     void initializeCourses() {
-        var course = CourseFactory.createCourse(
-                "Kurs Tworzenia Stron WWW w HTML i CSS",
-                59.99,
-                CourseDescriptionFactory.createCourseDescription(
-                        48.5,
-                        "Naucz się HTML 5, CSS 3, JS, XML, jQuery, AJAX, Responsive web design od podstaw. Wyjaśnię Ci wszystko od A do Z!",
-                        """
-                                Naucz się wszystkiego od zera. Obal mit, że tworzenie stron internetowych jest trudne. Twórz własne strony WWW od A do Z.\s                         
-                                Będziesz znał i rozumiał HTML 5, CSS 3, JS, XML, jQuery oraz AJAX.\s                           
-                                Co więcej nauczysz się Responsive Web Design czyli techniki, która sprawi, że Twoja strona będzie wyglądać idealnie na smartfonach jak i na komputerach stacjonarnych.\s                     
-                                """,
-                        Arrays.asList(
-                                "tworzyć od zera stronę WWW w HTML z rozwijanym menu w CSS",
-                                "czym są, jakie są oraz jak korzystać z tagów HTML/selektorów CSS",
-                                "nowości związane z HTML 5: tagi semantyczne, eventy, atrybuty",
-                                "różnice między HTML, XHTML, HTML 5, CSS i CSS 3"
-                        ),
-                        Collections.singletonList("Wszystko wyjaśnione jest w kursie. Nie musisz posiadać żadnych wiadomości. Wystarczą dobre chęci :)")),
-                new ArrayList<>(Arrays.asList(categoryRepository.findById(1).get()))
-        );
-        course.setCourseFeedback(new CourseFeedback());
-        course.setAuthors(new ArrayList<>(Collections.singletonList(userRepository.findByEmail("email@email.com"))));
+        var course = createSampleCourse();
+        Comment sampleComment = createSampleComment(course, userRepository.findByEmail("email@email.com"), Rating.FIVE.starValue);
+        course.getCourseFeedback().getComments().add(sampleComment);
 
-        var course2 = CourseFactory.createCourse(
-                "Kurs Tworzenia Stron WWW w HTML i CSS",
-                59.99,
-                CourseDescriptionFactory.createCourseDescription(
-                        48.5,
-                        "Naucz się HTML 5, CSS 3, JS, XML, jQuery, AJAX, Responsive web design od podstaw. Wyjaśnię Ci wszystko od A do Z!",
-                        """
-                                Naucz się wszystkiego od zera. Obal mit, że tworzenie stron internetowych jest trudne. Twórz własne strony WWW od A do Z.\s                         
-                                Będziesz znał i rozumiał HTML 5, CSS 3, JS, XML, jQuery oraz AJAX.\s                           
-                                Co więcej nauczysz się Responsive Web Design czyli techniki, która sprawi, że Twoja strona będzie wyglądać idealnie na smartfonach jak i na komputerach stacjonarnych.\s                     
-                                """,
-                        Arrays.asList(
-                                "tworzyć od zera stronę WWW w HTML z rozwijanym menu w CSS",
-                                "czym są, jakie są oraz jak korzystać z tagów HTML/selektorów CSS",
-                                "nowości związane z HTML 5: tagi semantyczne, eventy, atrybuty",
-                                "różnice między HTML, XHTML, HTML 5, CSS i CSS 3"
-                        ),
-                        Collections.singletonList("Wszystko wyjaśnione jest w kursie. Nie musisz posiadać żadnych wiadomości. Wystarczą dobre chęci :)")),
-                new ArrayList<>(Arrays.asList(categoryRepository.findById(1).get()))
-        );
-        var feedback = new CourseFeedback();
-
-        var sampleComment = new Comment();
-        sampleComment.setAuthor(userRepository.findByEmail("email@email.com").getUserActivity());
-        sampleComment.setDescription("Some comment");
-        sampleComment.setCourseFeedback(feedback);
-        sampleComment.setRate(Rating.FIVE.starValue);
-
-        feedback.getComments().add(sampleComment);
-        course2.setCourseFeedback(feedback);
+        var course2 = createSampleCourse();
 
         courseRepository.save(course);
         courseRepository.save(course2);
 
         courseRepository.findAll().forEach(c -> logger.info("CREATED COURSE {}", c.getTitle()));
+    }
+
+    private Comment createSampleComment(Course course, User author, Double rate) {
+        var sampleComment = new Comment();
+        sampleComment.setAuthor(author.getUserActivity());
+        sampleComment.setDescription("Some comment");
+        sampleComment.setCourseFeedback(course.getCourseFeedback());
+        sampleComment.setRate(rate);
+        return sampleComment;
+    }
+
+    private Course createSampleCourse() {
+        var sampleCourse =  CourseFactory.createCourse(
+                "Kurs Tworzenia Stron WWW w HTML i CSS",
+                59.99,
+                CourseDescriptionFactory.createCourseDescription(
+                        48.5,
+                        "Naucz się HTML 5, CSS 3, JS, XML, jQuery, AJAX, Responsive web design od podstaw. Wyjaśnię Ci wszystko od A do Z!",
+                        """
+                                Naucz się wszystkiego od zera. Obal mit, że tworzenie stron internetowych jest trudne. Twórz własne strony WWW od A do Z.\s                         
+                                Będziesz znał i rozumiał HTML 5, CSS 3, JS, XML, jQuery oraz AJAX.\s                           
+                                Co więcej nauczysz się Responsive Web Design czyli techniki, która sprawi, że Twoja strona będzie wyglądać idealnie na smartfonach jak i na komputerach stacjonarnych.\s                     
+                                """,
+                        Arrays.asList(
+                                "tworzyć od zera stronę WWW w HTML z rozwijanym menu w CSS",
+                                "czym są, jakie są oraz jak korzystać z tagów HTML/selektorów CSS",
+                                "nowości związane z HTML 5: tagi semantyczne, eventy, atrybuty",
+                                "różnice między HTML, XHTML, HTML 5, CSS i CSS 3"
+                        ),
+                        Collections.singletonList("Wszystko wyjaśnione jest w kursie. Nie musisz posiadać żadnych wiadomości. Wystarczą dobre chęci :)")),
+                new ArrayList<>(Arrays.asList(categoryRepository.findById(1).get()))
+        );
+        sampleCourse.setCourseFeedback(new CourseFeedback());
+        sampleCourse.setAuthors(new ArrayList<>(Collections.singletonList(userRepository.findByEmail("email@email.com"))));
+
+        return sampleCourse;
     }
 
     void initializeRoles() {
@@ -144,29 +133,38 @@ public class InitRunner implements CommandLineRunner {
     }
 
     void initializeUsers() {
-        var user = new User();
-        user.setEmail("email@email.com");
-        user.setFirstName("Name");
-        user.setLastName("Last");
-        user.setPassword(passwordEncoder.encode("user"));
-        user.setUserActivity(new UserActivity());
-        user.setRoles(Collections.singletonList(roleRepository.findById(1).get()));
-        user.setUserDetail(new UserDetail());
+        var user = createSampleUser(
+                "email@email.com",
+                "user",
+                new UserActivity(),
+                Collections.singletonList(roleRepository.findById(1).get()),
+                new UserDetail());
 
-        var admin = new User();
-        admin.setEmail("admin@email.com");
-        admin.setFirstName("Name");
-        admin.setLastName("Last");
-        admin.setPassword(passwordEncoder.encode("admin"));
-        admin.setUserActivity(new UserActivity());
-        admin.setRoles(Collections.singletonList(roleRepository.findById(2).get()));
-        admin.setUserDetail(new UserDetail());
+        var admin = createSampleUser(
+                "admin@email.com",
+                "admin",
+                new UserActivity(),
+                Collections.singletonList(roleRepository.findById(2).get()),
+                new UserDetail());
 
         userRepository.save(user);
         userRepository.save(admin);
 
         logger.info("CREATED USER {}", user.getEmail());
         logger.info("CREATED USER {}", admin.getEmail());
+    }
+
+    private User createSampleUser(String email, String plainPassword, UserActivity activity, List<Role> roles, UserDetail detail) {
+        var user = new User();
+        user.setEmail(email);
+        user.setFirstName("Name");
+        user.setLastName("Last");
+        user.setPassword(passwordEncoder.encode(plainPassword));
+        user.setUserActivity(activity);
+        user.setRoles(roles);
+        user.setUserDetail(detail);
+
+        return user;
     }
 
 }

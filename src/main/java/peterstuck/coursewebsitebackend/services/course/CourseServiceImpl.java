@@ -1,6 +1,5 @@
 package peterstuck.coursewebsitebackend.services.course;
 
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +18,9 @@ import peterstuck.coursewebsitebackend.utils.JwtUtil;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static peterstuck.coursewebsitebackend.utils.ObjectInitializer.initializeCourseObject;
+import static peterstuck.coursewebsitebackend.utils.ObjectUpdater.updateCourse;
 
 @Service
 public class CourseServiceImpl implements CourseService {
@@ -40,7 +42,7 @@ public class CourseServiceImpl implements CourseService {
             courses = filterCoursesByTitle(courses, keyword);
 
         courses.forEach(course -> {
-            initializeLazyObjects(course);
+            initializeCourseObject(course);
             computeAvgAndCountOfRates(course);
         });
 
@@ -54,6 +56,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional
     public List<Course> findAllByCategory(String keyword, int categoryId) {
         return this.findAll(keyword)
                 .stream()
@@ -77,7 +80,7 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new CourseNotFoundException("Course with id: " + id + " not found!"));
 
-        initializeLazyObjects(course);
+        initializeCourseObject(course);
         computeAvgAndCountOfRates(course);
 
         return course;
@@ -90,19 +93,6 @@ public class CourseServiceImpl implements CourseService {
         double avg = courseComments.stream().mapToDouble(Comment::getRate).sum() / courseComments.size();
         courseFeedback.setAvgRate(avg);
         courseFeedback.setRatesCount(courseComments.size());
-    }
-
-    private void initializeLazyObjects(Course course) {
-        Hibernate.initialize(course.getSubtitles());
-        Hibernate.initialize(course.getCategories());
-        Hibernate.initialize(course.getAuthors());
-        Hibernate.initialize(course.getCourseFeedback().getComments());
-
-        if (course.getCourseDescription() != null) {
-            Hibernate.initialize(course.getCourseDescription());
-            Hibernate.initialize(course.getCourseDescription().getMainTopics());
-            Hibernate.initialize(course.getCourseDescription().getRequirements());
-        }
     }
 
     @Override
@@ -139,34 +129,6 @@ public class CourseServiceImpl implements CourseService {
         courseRepository.save(course);
 
         return updated;
-    }
-
-    /**
-     * It should not be possible to override courseFeedback
-     * @param original course to update
-     * @param updated course with updated data
-     */
-    private void updateCourse(Course original, Course updated) {
-        original.setTitle(updated.getTitle());
-        original.setLastUpdate(new Date().getTime());
-        original.setSubtitles(updated.getSubtitles());
-        original.setCategories(updated.getCategories());
-        original.setPrice(updated.getPrice());
-        original.setLanguages(updated.getLanguages());
-
-        updateCourseDescription(original.getCourseDescription(), updated.getCourseDescription());
-    }
-
-    /**
-     * @param original course description to update
-     * @param updated course description with updated data
-     */
-    private void updateCourseDescription(CourseDescription original, CourseDescription updated) {
-        original.setDuration(updated.getDuration());
-        original.setShortDescription(updated.getShortDescription());
-        original.setLongDescription(updated.getLongDescription());
-        original.setMainTopics(updated.getMainTopics());
-        original.setRequirements(updated.getRequirements());
     }
 
     @Override

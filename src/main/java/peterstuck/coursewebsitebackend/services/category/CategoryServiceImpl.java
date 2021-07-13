@@ -10,6 +10,8 @@ import peterstuck.coursewebsitebackend.repositories.CategoryRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static peterstuck.coursewebsitebackend.utils.ObjectUpdater.updateCategory;
+
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
@@ -46,16 +48,6 @@ public class CategoryServiceImpl implements CategoryService {
         save(category);
 
         return category;
-    }
-
-    /**
-     * It should not be possible to update course list associated to category during update.
-     * @param original category to update
-     * @param updated category with updated data
-     */
-    private void updateCategory(Category original, Category updated) {
-        original.setName(updated.getName());
-        original.setParentCategoryId(updated.getParentCategoryId());
     }
 
     @Override
