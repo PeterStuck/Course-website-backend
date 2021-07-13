@@ -15,21 +15,20 @@ import java.util.Map;
 public class UserAdvisor {
 
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<Object> handleUsernameNotFoundException() {
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", new Date().getTime());
-        body.put("message", "Wrong token.");
-
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<Object> handleUsernameNotFoundException(Exception ex) {
+        return new ResponseEntity<>(createResponseContent(ex.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(UsernameNotUniqueException.class)
     public ResponseEntity<Object> handleUsernameNotUniqueException(Exception ex) {
+        return new ResponseEntity<>(createResponseContent(ex.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    private Map<String, Object> createResponseContent(String message) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", new Date().getTime());
-        body.put("message", ex.getMessage());
-
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        body.put("message", message);
+        return body;
     }
 
 }

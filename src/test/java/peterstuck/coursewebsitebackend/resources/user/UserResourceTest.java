@@ -25,6 +25,7 @@ import java.util.Collections;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -131,6 +132,22 @@ class UserResourceTest {
 
     @WithMockUser
     @Test
+    void whenUpdatedUserObjectIsInvalidThenReturnStatus400AndMessage() throws Exception {
+        String response = tru.makePostRequest(BASE_PATH, invalidUser, status().isBadRequest()).getContentAsString();
+
+        assertThat(response, containsString("email"));
+        assertThat(response, containsString("firstName"));
+        assertThat(response, containsString("lastName"));
+        assertThat(response, containsString("userDetail"));
+
+        assertThat(response, containsString("Bad email syntax."));
+        assertThat(response, containsString("Name should have first capital letter."));
+        assertThat(response, containsString("Surname should have first capital letter."));
+        assertThat(response, containsString("Each user should have user details associated."));
+    }
+
+    @WithMockUser
+    @Test
     void shouldReturnUserDataWithUserDetailsAndStatus200() throws Exception {
         when(repository.findByEmail(any())).thenReturn(validTestUser);
 
@@ -142,6 +159,18 @@ class UserResourceTest {
         assertThat(responseUser.getEmail(), equalTo(validTestUser.getEmail()));
         assertThat(responseUser.getPurchasedCourses(), equalTo(validTestUser.getPurchasedCourses()));
         assertThat(responseUser.getOwnCourses(), equalTo(validTestUser.getOwnCourses()));
+    }
+
+    @WithMockUser
+    @Test
+    void whenTokenInvalidDuringGetUserInfoThenReturnStatus400AndMessage() throws Exception {
+        when(repository.findByEmail(any())).thenReturn(null);
+
+        String response = tru.makeRequestToGetSingleItem(BASE_PATH, status().isBadRequest()).getContentAsString();
+
+        assertThat(response, containsString("timestamp"));
+        assertThat(response, containsString("message"));
+        assertThat(response, containsString("Wrong token."));
     }
 
 }
