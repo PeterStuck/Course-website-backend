@@ -44,10 +44,6 @@ public class InitRunner implements CommandLineRunner {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    @Qualifier("bcryptPasswordEncoder")
-    private PasswordEncoder passwordEncoder;
-
     @Override
     @Transactional
     public void run(String... args) throws Exception {
@@ -159,7 +155,7 @@ public class InitRunner implements CommandLineRunner {
         user.setEmail(email);
         user.setFirstName("Name");
         user.setLastName("Last");
-        user.setPassword(passwordEncoder.encode(plainPassword));
+        user.setPassword(plainPassword);
         user.setUserActivity(activity);
         user.setRoles(roles);
         user.setUserDetail(detail);
