@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
+import peterstuck.coursewebsitebackend.exceptions.UsernameNotUniqueException;
 import peterstuck.coursewebsitebackend.models.user.User;
 import peterstuck.coursewebsitebackend.resources.auth.JwtToken;
 import peterstuck.coursewebsitebackend.services.user.UserService;
@@ -37,7 +38,7 @@ public class UserResource {
             """)
     public void registerNewUser(
             @ApiParam(value = "valid new user object", required = true)
-            @Valid @RequestBody User user) {
+            @Valid @RequestBody User user) throws UsernameNotUniqueException {
         service.register(user);
     }
 

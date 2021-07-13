@@ -18,7 +18,7 @@ public class AuthAdvisor {
             BadCredentialsException.class,
             UsernameNotFoundException.class
     })
-    public ResponseEntity<Object> handleBadCredentialsAndUsernameNotFoundException() {
+    public ResponseEntity<Object> handleBadCredentialsAndUsernameNotFoundException(Exception ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", new Date().getTime());
         body.put("message", "Bad credentials.");

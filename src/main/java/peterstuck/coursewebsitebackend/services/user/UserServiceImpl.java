@@ -8,14 +8,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import peterstuck.coursewebsitebackend.exceptions.UsernameNotUniqueException;
 import peterstuck.coursewebsitebackend.models.user.Role;
 import peterstuck.coursewebsitebackend.models.user.User;
 import peterstuck.coursewebsitebackend.models.user.UserActivity;
-import peterstuck.coursewebsitebackend.repositories.RoleRepository;
 import peterstuck.coursewebsitebackend.repositories.UserRepository;
 import peterstuck.coursewebsitebackend.utils.JwtUtil;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,9 +24,6 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private RoleRepository roleRepository;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -51,11 +49,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void register(User user) {
-        Role userRole = roleRepository.findByName("ROLE_USER");
+    public void register(User user) throws UsernameNotUniqueException {
+        checkIsUsernameUnique(user.getEmail());
+
         user.setUserActivity(new UserActivity());
-        user.setRoles(new ArrayList<>(Collections.singletonList(userRole)));
+
         userRepository.save(user);
+    }
+
+    /**
+     * @param username User email
+     * @throws UsernameNotUniqueException when User with given username (email) already exists
+     */
+    private void checkIsUsernameUnique(String username) throws UsernameNotUniqueException {
+        try {
+            User user = userRepository.findByEmail(username);
+            if (user != null) throw new UsernameNotUniqueException("Email: " + username + " is already in use. Try again with another one or sign in.");
+        } catch (UsernameNotFoundException e) {};
     }
 
     @Override

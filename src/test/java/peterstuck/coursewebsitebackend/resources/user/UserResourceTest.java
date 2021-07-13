@@ -85,6 +85,17 @@ class UserResourceTest {
     }
 
     @Test
+    void whenUsernameAlreadyExistsDuringCreateThenReturnStatus400AndMessage() throws Exception {
+        when(repository.findByEmail(validTestUser.getEmail())).thenReturn(validTestUser);
+
+        String response = tru.makePostRequest(BASE_PATH, validTestUser, status().isBadRequest()).getContentAsString();
+
+        assertThat(response, containsString("message"));
+        assertThat(response, containsString("Email: " + validTestUser.getEmail() + " is already in use. Try again with another one or sign in."));
+        assertThat(response, containsString("timestamp"));
+    }
+
+    @Test
     void shouldReturnStatus400AndErrorMessagesWhenNewUserObjectIsInvalid() throws Exception {
         String response = tru.makePostRequest(BASE_PATH, invalidUser, status().isBadRequest()).getContentAsString();
 

@@ -11,10 +11,7 @@ import lombok.ToString;
 import peterstuck.coursewebsitebackend.models.course.Course;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +31,7 @@ public class User {
 
     @Column
     @Email(message = "Bad email syntax.")
-    @ApiModelProperty(notes = "Must have email syntax.", required = true)
+    @ApiModelProperty(notes = "Must have email syntax. Acts as username.", required = true)
     private String email;
 
     @Column
@@ -48,6 +45,7 @@ public class User {
     private String lastName;
 
     @Column
+    @NotBlank(message = "Password is mandatory.")
     @Size(min = 8, message = "Password should have at least 8 characters of length.")
     @ApiModelProperty(notes = "Password is stored as bcrypt.", required = true)
     private String password;

@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import peterstuck.coursewebsitebackend.exceptions.UsernameNotUniqueException;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -18,6 +19,15 @@ public class UserAdvisor {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", new Date().getTime());
         body.put("message", "Wrong token.");
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UsernameNotUniqueException.class)
+    public ResponseEntity<Object> handleUsernameNotUniqueException(Exception ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", new Date().getTime());
+        body.put("message", ex.getMessage());
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
