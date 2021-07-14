@@ -91,12 +91,7 @@ public class CourseResource {
     public Course getCourseById(@PathVariable Long id) throws CourseNotFoundException, JsonProcessingException {
         Course course = service.findById(id);
 
-        String[] courseExceptFields = new String[] {
-                "courseDescription",
-                "courseFeedback"
-        };
-
-        return  (Course) filterCourseData(course, courseExceptFields);
+        return  (Course) filterCourseData(course, new String[0]);
     }
 
     @PostMapping
@@ -141,8 +136,6 @@ public class CourseResource {
 
     private Object filterCourseData(Object rawObject, String[] courseExceptFields) throws JsonProcessingException {
         String[] exceptFields = Stream.concat(Arrays.stream(courseExceptFields), Arrays.stream(USER_EXCEPT_FIELDS)).toArray(String[]::new);
-
-        System.out.println(Arrays.toString(exceptFields));
 
         return JsonFilter.filterFields(rawObject, FILTER_NAME, exceptFields);
     }
