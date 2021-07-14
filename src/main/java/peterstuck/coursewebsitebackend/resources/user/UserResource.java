@@ -1,7 +1,6 @@
 package peterstuck.coursewebsitebackend.resources.user;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -57,21 +56,29 @@ public class UserResource {
         return new JwtToken(newToken);
     }
 
-    // TODO fix direct User class filtering (deletes field content, but field name is being returned in response)
     @GetMapping
     @ApiOperation(value = "returns particular user data", notes = """
             User identification is being proceed based on passed JWT.
             Response excludes sensitive data and non important fields, ex. user roles, password etc.
             When everything proceed successfully returns status 200 (OK), otherwise 400 (BAD REQUEST).
             """)
-    public Object getUserInfo(
+    public User getUserInfo(
             @ApiParam(value = "authorization request header", required = true)
             @RequestHeader("Authorization") String authHeader) throws UsernameNotFoundException, JsonProcessingException {
         User user = service.getUserInfo(authHeader);
-        String obj = JsonFilter.castObjectToJsonString(user, FILTER_NAME, new String[] { "userActivity", "roles", "password" });
 
-//        return (User) JsonFilter.filterFields(user, FILTER_NAME, new String[] { "userActivity", "roles", "password" });
-        return new ObjectMapper().readValue(obj, Object.class);
+        String[] exceptFields = new String[] {
+                // user
+                "userActivity",
+                "roles",
+                "password",
+                // course
+                "price",
+                "courseDescription",
+                "courseFeedback"
+        };
+
+        return (User) JsonFilter.filterFields(user, FILTER_NAME, exceptFields);
     }
 
 }

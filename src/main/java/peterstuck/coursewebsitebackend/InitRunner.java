@@ -3,10 +3,8 @@ package peterstuck.coursewebsitebackend;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import peterstuck.coursewebsitebackend.factory.course.CourseFactory;
@@ -52,6 +50,8 @@ public class InitRunner implements CommandLineRunner {
 
         initializeCategories();
         initializeCourses();
+
+        initializeUserPurchasedCourses();
     }
 
     void initializeCategories() {
@@ -161,6 +161,18 @@ public class InitRunner implements CommandLineRunner {
         user.setUserDetail(detail);
 
         return user;
+    }
+
+    private void initializeUserPurchasedCourses() {
+        User user = userRepository.findByEmail("admin@email.com");
+        user.setPurchasedCourses(new ArrayList<>(Arrays.asList(
+                courseRepository.getById(1L),
+                courseRepository.getById(2L)
+        )));
+
+        userRepository.save(user);
+
+        logger.info("USER " + user.getEmail() + " PURCHASED SOME COURSES");
     }
 
 }

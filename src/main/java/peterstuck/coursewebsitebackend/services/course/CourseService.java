@@ -1,5 +1,6 @@
 package peterstuck.coursewebsitebackend.services.course;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import peterstuck.coursewebsitebackend.exceptions.CourseNotFoundException;
 import peterstuck.coursewebsitebackend.exceptions.NotAnAuthorException;
 import peterstuck.coursewebsitebackend.exceptions.UserNotExistsException;
@@ -12,9 +13,9 @@ public interface CourseService {
     /**
      * @param keyword optional additional filter by title
      */
-    List<Course> findAll(String keyword);
+    List<Course> findAll(String keyword) throws JsonProcessingException;
 
-    List<Course> findAllByCategory(String keyword, int categoryId);
+    List<Course> findAllByCategory(String keyword, int categoryId) throws JsonProcessingException;
 
     Course findById(Long id) throws CourseNotFoundException;
 

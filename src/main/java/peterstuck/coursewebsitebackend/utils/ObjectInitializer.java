@@ -15,6 +15,8 @@ public class ObjectInitializer {
         Hibernate.initialize(course.getAuthors());
         Hibernate.initialize(course.getCourseFeedback().getComments());
 
+        course.getAuthors().forEach(ObjectInitializer::initializeUserObject);
+
         if (course.getCourseDescription() != null) {
             Hibernate.initialize(course.getCourseDescription());
             Hibernate.initialize(course.getCourseDescription().getMainTopics());
@@ -23,11 +25,12 @@ public class ObjectInitializer {
     }
 
     public static void initializeUserObject(User user) {
-        Hibernate.initialize(user.getRoles());
         Hibernate.initialize(user.getPurchasedCourses());
         Hibernate.initialize(user.getOwnCourses());
         Hibernate.initialize(user.getUserDetail());
         Hibernate.initialize(user.getUserActivity());
+
+        user.getPurchasedCourses().forEach(ObjectInitializer::initializeCourseObject);
     }
 
 }

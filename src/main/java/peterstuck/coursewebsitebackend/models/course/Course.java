@@ -87,8 +87,6 @@ public class Course {
     @ManyToMany(mappedBy = "purchasedCourses")
     private List<User> students;
 
-    // TODO check if lazy init exception occur
-//    @JsonFilter("UserFilter")
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "course_website_user",

@@ -17,8 +17,10 @@ import peterstuck.coursewebsitebackend.services.course.CourseService;
 import peterstuck.coursewebsitebackend.utils.JsonFilter;
 
 import javax.validation.Valid;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/api/courses")
@@ -31,6 +33,14 @@ public class CourseResource {
 
     private final String FILTER_NAME = "JsonFilter";
 
+    private final String[] USER_EXCEPT_FIELDS = new String[] {
+            "password",
+            "roles",
+            "userActivity",
+            "userDetail",
+            "purchasedCourses"
+    };
+
     @GetMapping
     @ApiOperation(value = "returns all courses", notes = """
         When keyword param is provided it will also filter courses with keyword in title.
@@ -41,15 +51,12 @@ public class CourseResource {
             @RequestParam(required = false) String keyword) throws JsonProcessingException {
         List<Course> courses = service.findAll(keyword);
 
-        return getResponseAndStatus((List<Course>) JsonFilter.filterFields(courses, FILTER_NAME, new String[] { "courseDescription", "courseFeedback" }));
-    }
+        String[] courseExceptFields = new String[] {
+                "courseDescription",
+                "courseFeedback"
+        };
 
-    @GetMapping("/{id}")
-    @ApiOperation(value = "returns course with given ID", notes = "When course is not found then returns status 404.")
-    public Course getCourseById(@PathVariable Long id) throws CourseNotFoundException, JsonProcessingException {
-        Course course = service.findById(id);
-
-        return (Course) JsonFilter.filterFields(course, FILTER_NAME, null);
+        return getResponseAndStatus((List<Course>) filterCourseData(courses, courseExceptFields));
     }
 
     @GetMapping("/category/{categoryId}")
@@ -64,7 +71,12 @@ public class CourseResource {
     ) throws JsonProcessingException {
         List<Course> courses = service.findAllByCategory(keyword, categoryId);
 
-        return getResponseAndStatus((List<Course>) JsonFilter.filterFields(courses, FILTER_NAME, new String[] { "courseDescription", "courseFeedback" }));
+        String[] courseExceptFields = new String[] {
+                "courseDescription",
+                "courseFeedback"
+        };
+
+        return getResponseAndStatus((List<Course>) filterCourseData(courses, courseExceptFields));
     }
 
     private ResponseEntity<Object> getResponseAndStatus(List<Course> courses) {
@@ -72,6 +84,19 @@ public class CourseResource {
                 courses,
                 (courses.size() > 0 ? HttpStatus.OK : HttpStatus.NO_CONTENT)
         );
+    }
+
+    @GetMapping("/{id}")
+    @ApiOperation(value = "returns course with given ID", notes = "When course is not found then returns status 404.")
+    public Course getCourseById(@PathVariable Long id) throws CourseNotFoundException, JsonProcessingException {
+        Course course = service.findById(id);
+
+        String[] courseExceptFields = new String[] {
+                "courseDescription",
+                "courseFeedback"
+        };
+
+        return  (Course) filterCourseData(course, courseExceptFields);
     }
 
     @PostMapping
@@ -84,7 +109,11 @@ public class CourseResource {
             @RequestHeader("Authorization") String authHeader) throws JsonProcessingException, UserNotExistsException {
         service.save(course, authHeader);
 
-        return (Course) JsonFilter.filterFields(course, FILTER_NAME, new String[]{ "courseFeedback" });
+        String[] courseExceptFields = new String[] {
+                "courseFeedback"
+        };
+
+        return (Course) filterCourseData(course, courseExceptFields);
     }
 
     @PutMapping("/{id}")
@@ -103,7 +132,19 @@ public class CourseResource {
     ) throws CourseNotFoundException, JsonProcessingException, NotAnAuthorException {
         service.update(id, authHeader, updatedCourse);
 
-        return (Course) JsonFilter.filterFields(updatedCourse, FILTER_NAME, new String[]{ "courseFeedback" });
+        String[] courseExceptFields = new String[] {
+                "courseFeedback"
+        };
+
+        return (Course) filterCourseData(updatedCourse, courseExceptFields);
+    }
+
+    private Object filterCourseData(Object rawObject, String[] courseExceptFields) throws JsonProcessingException {
+        String[] exceptFields = Stream.concat(Arrays.stream(courseExceptFields), Arrays.stream(USER_EXCEPT_FIELDS)).toArray(String[]::new);
+
+        System.out.println(Arrays.toString(exceptFields));
+
+        return JsonFilter.filterFields(rawObject, FILTER_NAME, exceptFields);
     }
 
     @DeleteMapping("/{id}")

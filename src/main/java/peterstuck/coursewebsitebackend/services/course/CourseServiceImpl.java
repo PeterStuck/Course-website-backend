@@ -1,5 +1,6 @@
 package peterstuck.coursewebsitebackend.services.course;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,7 @@ import peterstuck.coursewebsitebackend.models.course.CourseFeedback;
 import peterstuck.coursewebsitebackend.models.user.User;
 import peterstuck.coursewebsitebackend.repositories.CourseRepository;
 import peterstuck.coursewebsitebackend.repositories.UserRepository;
+import peterstuck.coursewebsitebackend.utils.JsonFilter;
 import peterstuck.coursewebsitebackend.utils.JwtUtil;
 
 import java.util.Date;

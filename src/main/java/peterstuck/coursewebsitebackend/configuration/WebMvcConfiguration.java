@@ -1,5 +1,6 @@
 package peterstuck.coursewebsitebackend.configuration;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
@@ -22,6 +23,9 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
                         .setFailOnUnknownId(false)
                         .addFilter("JsonFilter", SimpleBeanPropertyFilter.serializeAll())
                 );
+                mapper
+                    .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                    .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
             }
         }
     }

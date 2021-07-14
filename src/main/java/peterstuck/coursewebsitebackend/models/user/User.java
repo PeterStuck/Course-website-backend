@@ -3,6 +3,7 @@ package peterstuck.coursewebsitebackend.models.user;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -59,7 +60,6 @@ public class User {
     @ApiModelProperty(notes = "Every new user gets role USER as default.", required = true)
     private List<Role> roles;
 
-    // TODO check for lazy exception
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "website_user_course",
@@ -68,7 +68,7 @@ public class User {
     )
     private List<Course> purchasedCourses;
 
-    // TODO check for lazy exception
+    @JsonIgnore
     @ManyToMany(mappedBy = "authors", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     private List<Course> ownCourses;
 
