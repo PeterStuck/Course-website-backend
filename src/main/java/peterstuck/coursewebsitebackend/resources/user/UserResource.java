@@ -17,6 +17,7 @@ import peterstuck.coursewebsitebackend.utils.JsonFilter;
 
 import javax.validation.Valid;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/users")
 @Api(value = "Users", tags = { "Users" })

@@ -15,6 +15,7 @@ import peterstuck.coursewebsitebackend.services.category.CategoryService;
 import javax.validation.Valid;
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/categories")
 @Api(value = "Category", tags = { "Category" })
