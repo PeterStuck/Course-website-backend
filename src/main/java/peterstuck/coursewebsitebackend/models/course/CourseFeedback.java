@@ -1,5 +1,6 @@
 package peterstuck.coursewebsitebackend.models.course;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -9,6 +10,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@JsonFilter("JsonFilter")
 @Getter
 @Setter
 @Entity

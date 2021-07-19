@@ -53,8 +53,11 @@ public class CourseResource {
         List<Course> courses = service.findAll(keyword);
 
         String[] courseExceptFields = new String[] {
-                "courseDescription",
-                "courseFeedback"
+                "duration",
+                "longDescription",
+                "mainTopics",
+                "requirements",
+                "comments"
         };
 
         return getResponseAndStatus((List<Course>) filterCourseData(courses, courseExceptFields));
@@ -73,8 +76,11 @@ public class CourseResource {
         List<Course> courses = service.findAllByCategory(keyword, categoryId);
 
         String[] courseExceptFields = new String[] {
-                "courseDescription",
-                "courseFeedback"
+                "duration",
+                "longDescription",
+                "mainTopics",
+                "requirements",
+                "comments"
         };
 
         return getResponseAndStatus((List<Course>) filterCourseData(courses, courseExceptFields));
