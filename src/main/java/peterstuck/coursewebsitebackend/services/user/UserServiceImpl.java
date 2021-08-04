@@ -12,7 +12,8 @@ import peterstuck.coursewebsitebackend.exceptions.UsernameNotUniqueException;
 import peterstuck.coursewebsitebackend.models.user.Role;
 import peterstuck.coursewebsitebackend.models.user.User;
 import peterstuck.coursewebsitebackend.models.user.UserActivity;
-import peterstuck.coursewebsitebackend.repositories.UserRepository;
+import peterstuck.coursewebsitebackend.repositories.user.RegistrationType;
+import peterstuck.coursewebsitebackend.repositories.user.UserRepository;
 import peterstuck.coursewebsitebackend.utils.JwtUtil;
 
 import java.util.Collection;
@@ -61,7 +62,7 @@ public class UserServiceImpl implements UserService {
 
         user.setUserActivity(new UserActivity());
 
-        repository.save(user);
+        repository.save(user, RegistrationType.DEFAULT);
     }
 
     @Override
@@ -71,9 +72,9 @@ public class UserServiceImpl implements UserService {
      */
     public String update(String token, User updatedUser) throws UsernameNotFoundException {
         User actualUser = extractUsernameAndGetUser(token);
-        updateUser(actualUser, updatedUser);
-        repository.save(actualUser);
 
+        updateUser(actualUser, updatedUser);
+        repository.save(actualUser, RegistrationType.DEFAULT);
         return jwtUtil.generateToken(this.loadUserByUsername(actualUser.getEmail()));
     }
 

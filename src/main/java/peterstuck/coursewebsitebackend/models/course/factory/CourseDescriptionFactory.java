@@ -1,7 +1,7 @@
-package peterstuck.coursewebsitebackend.factory.course_description;
+package peterstuck.coursewebsitebackend.models.course.factory;
 
-import peterstuck.coursewebsitebackend.builder.course_description.CourseDescriptionBuilder;
-import peterstuck.coursewebsitebackend.builder.course_description.StandardCourseDescriptionBuilder;
+import peterstuck.coursewebsitebackend.models.course.builder.course_description.CourseDescriptionBuilder;
+import peterstuck.coursewebsitebackend.models.course.builder.course_description.StandardCourseDescriptionBuilder;
 import peterstuck.coursewebsitebackend.models.course.CourseDescription;
 
 import java.util.List;

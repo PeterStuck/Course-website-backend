@@ -1,4 +1,4 @@
-package peterstuck.coursewebsitebackend.repositories;
+package peterstuck.coursewebsitebackend.repositories.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -6,6 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 import peterstuck.coursewebsitebackend.models.user.Role;
 import peterstuck.coursewebsitebackend.models.user.User;
+import peterstuck.coursewebsitebackend.repositories.RoleRepository;
 
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
@@ -36,13 +37,21 @@ public class UserRepository {
     /**
      * Every new User gets role USER as default role.
      */
-    public User save(User user) {
-        Role userRole = roleRepository.findByName("ROLE_USER");
-        user.setRoles(new ArrayList<>(Collections.singletonList(userRole)));
+    public User save(User user, RegistrationType type) {
         user.setPassword(encoder.encode(user.getPassword()));
 
-        manager.persist(user);
+        switch (type) {
+            case DEFAULT -> {
+                Role userRole = roleRepository.findByName("ROLE_USER");
+                user.setRoles(new ArrayList<>(Collections.singletonList(userRole)));
 
+                manager.persist(user);
+            }
+            case CUSTOM -> {
+                manager.persist(user);
+            }
+            default -> System.out.println("Registration type not recognized.");
+        }
         return user;
     }
 

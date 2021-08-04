@@ -1,6 +1,5 @@
 package peterstuck.coursewebsitebackend.services.course;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,15 +8,12 @@ import peterstuck.coursewebsitebackend.exceptions.NotAnAuthorException;
 import peterstuck.coursewebsitebackend.exceptions.UserNotExistsException;
 import peterstuck.coursewebsitebackend.models.course.Comment;
 import peterstuck.coursewebsitebackend.models.course.Course;
-import peterstuck.coursewebsitebackend.models.course.CourseDescription;
 import peterstuck.coursewebsitebackend.models.course.CourseFeedback;
 import peterstuck.coursewebsitebackend.models.user.User;
 import peterstuck.coursewebsitebackend.repositories.CourseRepository;
-import peterstuck.coursewebsitebackend.repositories.UserRepository;
-import peterstuck.coursewebsitebackend.utils.JsonFilter;
+import peterstuck.coursewebsitebackend.repositories.user.UserRepository;
 import peterstuck.coursewebsitebackend.utils.JwtUtil;
 
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -117,7 +113,8 @@ public class CourseServiceImpl implements CourseService {
                 throw new UserNotExistsException("User with email: " + author.getEmail() + " not exists.");
         }
 
-        User user = userRepository.findByEmail(jwtUtil.extractUsername(token));
+        String rawToken = token.substring(7);
+        User user = userRepository.findByEmail(jwtUtil.extractUsername(rawToken));
         if (!course.getAuthors().contains(user) && user != null) course.getAuthors().add(user);
     }
 

@@ -7,17 +7,16 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import peterstuck.coursewebsitebackend.factory.course.CourseFactory;
-import peterstuck.coursewebsitebackend.factory.course_description.CourseDescriptionFactory;
+import peterstuck.coursewebsitebackend.models.course.factory.CourseFactory;
+import peterstuck.coursewebsitebackend.models.course.factory.CourseDescriptionFactory;
 import peterstuck.coursewebsitebackend.models.course.*;
 import peterstuck.coursewebsitebackend.models.user.Role;
 import peterstuck.coursewebsitebackend.models.user.User;
 import peterstuck.coursewebsitebackend.models.user.UserActivity;
 import peterstuck.coursewebsitebackend.models.user.UserDetail;
-import peterstuck.coursewebsitebackend.repositories.CategoryRepository;
-import peterstuck.coursewebsitebackend.repositories.CourseRepository;
-import peterstuck.coursewebsitebackend.repositories.RoleRepository;
-import peterstuck.coursewebsitebackend.repositories.UserRepository;
+import peterstuck.coursewebsitebackend.repositories.*;
+import peterstuck.coursewebsitebackend.repositories.user.RegistrationType;
+import peterstuck.coursewebsitebackend.repositories.user.UserRepository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,7 +50,7 @@ public class InitRunner implements CommandLineRunner {
         initializeCategories();
         initializeCourses();
 
-        initializeUserPurchasedCourses();
+//        initializeUserPurchasedCourses();
     }
 
     void initializeCategories() {
@@ -140,11 +139,11 @@ public class InitRunner implements CommandLineRunner {
                 "admin@email.com",
                 "admin",
                 new UserActivity(),
-                Collections.singletonList(roleRepository.findById(2).get()),
+                Collections.singletonList(roleRepository.findById(3).get()),
                 new UserDetail());
 
-        userRepository.save(user);
-        userRepository.save(admin);
+        userRepository.save(user, RegistrationType.DEFAULT);
+        userRepository.save(admin, RegistrationType.CUSTOM);
 
         logger.info("CREATED USER {}", user.getEmail());
         logger.info("CREATED USER {}", admin.getEmail());
@@ -163,14 +162,14 @@ public class InitRunner implements CommandLineRunner {
         return user;
     }
 
-    private void initializeUserPurchasedCourses() {
+    protected void initializeUserPurchasedCourses() {
         User user = userRepository.findByEmail("admin@email.com");
         user.setPurchasedCourses(new ArrayList<>(Arrays.asList(
                 courseRepository.getById(1L),
                 courseRepository.getById(2L)
         )));
 
-        userRepository.save(user);
+        userRepository.save(user, RegistrationType.CUSTOM);
 
         logger.info("USER " + user.getEmail() + " PURCHASED SOME COURSES");
     }

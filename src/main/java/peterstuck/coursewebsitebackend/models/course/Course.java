@@ -51,13 +51,12 @@ public class Course {
     private Set<Language> subtitles;
 
     @JsonIgnore
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
     @JoinTable(
             name = "course_category",
             joinColumns = @JoinColumn(name = "course_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
-//    @Size(min = 1, message = "Course must have at least one category selected.")
     private List<Category> categories;
 
     @Column(name = "last_update")
@@ -84,10 +83,10 @@ public class Course {
     private CourseFeedback courseFeedback;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "purchasedCourses")
+    @ManyToMany(mappedBy = "purchasedCourses", cascade = { CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
     private List<User> students;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
     @JoinTable(
             name = "course_website_user",
             joinColumns = @JoinColumn(name = "course_id"),

@@ -59,6 +59,8 @@ public class CategoryResource {
         Operation available only for page administrator.
         """)
     public Category createCategory(
+            @ApiParam(required = true)
+            @RequestHeader("Authorization") String authHeader,
             @ApiParam(value = "valid new Category object", required = true)
             @Valid @RequestBody Category category) {
         return service.save(category);
@@ -71,6 +73,8 @@ public class CategoryResource {
             Operation available only for page administrator.
             """)
     public Category updateCategory(
+            @ApiParam(required = true)
+            @RequestHeader("Authorization") String authHeader,
             @ApiParam(value = "id of category that is going to be updated", required = true)
             @PathVariable int categoryId,
             @ApiParam(value = "valid Category object with updated data", required = true)
@@ -84,6 +88,8 @@ public class CategoryResource {
             Operation available only for page administrator.
             """)
     public String deleteCategory(
+            @ApiParam(required = true)
+            @RequestHeader("Authorization") String authHeader,
             @ApiParam(value = "id of category to delete", required = true)
             @PathVariable int categoryId) throws CategoryNotFoundException {
         service.delete(categoryId);

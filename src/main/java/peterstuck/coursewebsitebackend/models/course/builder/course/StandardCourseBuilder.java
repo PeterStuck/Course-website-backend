@@ -1,8 +1,7 @@
-package peterstuck.coursewebsitebackend.builder.course;
+package peterstuck.coursewebsitebackend.models.course.builder.course;
 
 import peterstuck.coursewebsitebackend.models.course.*;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 

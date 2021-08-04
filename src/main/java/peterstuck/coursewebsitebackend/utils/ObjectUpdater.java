@@ -21,7 +21,6 @@ public class ObjectUpdater {
         original.setCategories(updated.getCategories());
         original.setLastUpdate(new Date().getTime());
         original.setPrice(updated.getPrice());
-        original.setAuthors(updated.getAuthors());
 
         updateCourseDescription(original.getCourseDescription(), updated.getCourseDescription());
     }

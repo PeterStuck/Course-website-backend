@@ -14,6 +14,7 @@ import java.util.List;
 @JsonFilter("JsonFilter")
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity

@@ -3,6 +3,7 @@ package peterstuck.coursewebsitebackend;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
@@ -15,6 +16,7 @@ import java.util.Collections;
 
 @SpringBootApplication
 @EnableSwagger2
+@EnableAspectJAutoProxy
 public class CourseWebsiteBackendApplication {
 
 	public static void main(String[] args) {

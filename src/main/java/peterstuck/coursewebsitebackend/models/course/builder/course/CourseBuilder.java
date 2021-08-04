@@ -1,4 +1,4 @@
-package peterstuck.coursewebsitebackend.builder.course;
+package peterstuck.coursewebsitebackend.models.course.builder.course;
 
 import peterstuck.coursewebsitebackend.models.course.*;
 

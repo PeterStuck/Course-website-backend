@@ -105,10 +105,10 @@ public class CourseResource {
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(value = "adds new course", notes = "Adds new course only when course object is valid.")
     public Course addCourse(
-            @ApiParam(value = "new course object, should provide basic information about itself and category/ies", required = true)
-            @Valid @RequestBody Course course,
             @ApiParam(required = true)
-            @RequestHeader("Authorization") String authHeader) throws JsonProcessingException, UserNotExistsException {
+            @RequestHeader("Authorization") String authHeader,
+            @ApiParam(value = "new course object should provide basic information about itself and category/ies", required = true)
+            @Valid @RequestBody Course course) throws JsonProcessingException, UserNotExistsException {
         service.save(course, authHeader);
 
         String[] courseExceptFields = new String[] {
@@ -126,9 +126,9 @@ public class CourseResource {
                     Endpoint available only for course author and page admin.""")
     public Course updateCourse(
             @ApiParam(required = true)
-            @PathVariable Long id,
-            @ApiParam(required = true)
             @RequestHeader("Authorization") String authHeader,
+            @ApiParam(required = true)
+            @PathVariable Long id,
             @ApiParam(value = "course with updated data", required = true)
             @Valid @RequestBody Course updatedCourse
     ) throws CourseNotFoundException, JsonProcessingException, NotAnAuthorException {
@@ -154,9 +154,9 @@ public class CourseResource {
                     Returns status 404 when course not found.
                     Endpoint available only for course author and page admin.""")
     public String deleteCourse(
-            @PathVariable Long id,
             @ApiParam(required = true)
-            @RequestHeader("Authorization") String authHeader) throws CourseNotFoundException, NotAnAuthorException {
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable Long id) throws CourseNotFoundException, NotAnAuthorException {
         service.delete(id, authHeader);
 
         return "Course with ID: " + id + " was successfully deleted.";

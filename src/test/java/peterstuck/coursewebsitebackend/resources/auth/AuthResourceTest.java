@@ -15,11 +15,10 @@ import peterstuck.coursewebsitebackend.models.user.Role;
 import peterstuck.coursewebsitebackend.models.user.User;
 import peterstuck.coursewebsitebackend.models.user.UserActivity;
 import peterstuck.coursewebsitebackend.models.user.UserDetail;
-import peterstuck.coursewebsitebackend.repositories.UserRepository;
+import peterstuck.coursewebsitebackend.repositories.user.UserRepository;
 import peterstuck.coursewebsitebackend.resources.TestRequestUtils;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;

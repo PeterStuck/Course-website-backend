@@ -2,6 +2,7 @@ package peterstuck.coursewebsitebackend.resources.category;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -94,16 +95,12 @@ class CategoryResourceTest {
     @WithMockUser(roles = { "ADMIN" })
     @Test
     void whenNewCategoryObjectIsValidShouldBeAbleToSaveAndReturnStatusCreated() throws Exception {
-        when(repository.save(testCategory)).then(invocationOnMock -> {
-           testCategories.add(testCategory);
-            return testCategory;
-        });
+        when(repository.save(ArgumentMatchers.any())).thenReturn(testCategory);
 
         var response = tru.makePostRequest(BASE_PATH, testCategory, status().isCreated());
         Category category = TestRequestUtils.mapper.readValue(response.getContentAsString(), Category.class);
 
-        verify(repository).save(testCategory);
-        assertThat(testCategories, hasSize(6));
+        verify(repository).save(ArgumentMatchers.any());
         assertThat(category.getName(), equalTo(testCategory.getName()));
     }
 

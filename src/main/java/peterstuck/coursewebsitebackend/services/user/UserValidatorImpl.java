@@ -5,7 +5,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import peterstuck.coursewebsitebackend.exceptions.UsernameNotUniqueException;
 import peterstuck.coursewebsitebackend.models.user.User;
-import peterstuck.coursewebsitebackend.repositories.UserRepository;
+import peterstuck.coursewebsitebackend.repositories.user.UserRepository;
 
 @Component
 public class UserValidatorImpl implements UserValidator {
