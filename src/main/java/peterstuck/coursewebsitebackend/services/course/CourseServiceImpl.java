@@ -127,7 +127,7 @@ public class CourseServiceImpl implements CourseService {
         updateCourse(course, updated);
         courseRepository.save(course);
 
-        return updated;
+        return course;
     }
 
     @Override

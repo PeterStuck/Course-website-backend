@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 @JsonFilter("JsonFilter")
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
 @Setter
 @ToString

@@ -6,6 +6,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,9 +20,11 @@ import peterstuck.coursewebsitebackend.utils.JsonFilter;
 
 import javax.validation.Valid;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -95,27 +99,26 @@ public class CourseResource {
 
     @GetMapping("/{id}")
     @ApiOperation(value = "returns course with given ID", notes = "When course is not found then returns status 404.")
-    public Course getCourseById(@PathVariable Long id) throws CourseNotFoundException, JsonProcessingException {
-        Course course = service.findById(id);
+    public EntityModel<Course> getCourseById(@PathVariable Long id) throws CourseNotFoundException, JsonProcessingException {
+        Course filteredCourse = (Course) filterCourseData(service.findById(id), new String[0]);
 
-        return  (Course) filterCourseData(course, new String[0]);
+        return EntityModel.of(filteredCourse);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(value = "adds new course", notes = "Adds new course only when course object is valid.")
-    public Course addCourse(
+    public EntityModel<Course> addCourse(
             @ApiParam(required = true)
             @RequestHeader("Authorization") String authHeader,
             @ApiParam(value = "new course object should provide basic information about itself and category/ies", required = true)
-            @Valid @RequestBody Course course) throws JsonProcessingException, UserNotExistsException {
-        service.save(course, authHeader);
+            @Valid @RequestBody Course course) throws JsonProcessingException, UserNotExistsException, CourseNotFoundException {
+        final String[] courseExceptFields = new String[] { "courseFeedback" };
 
-        String[] courseExceptFields = new String[] {
-                "courseFeedback"
-        };
+        Course savedCourse = service.save(course, authHeader);
+        Course filteredCourse = (Course) filterCourseData(savedCourse, courseExceptFields);
 
-        return (Course) filterCourseData(course, courseExceptFields);
+        return getCourseEntityModel(filteredCourse.getId(), filteredCourse);
     }
 
     @PutMapping("/{id}")
@@ -124,7 +127,7 @@ public class CourseResource {
                     Update is being proceed only if course with given ID already exists and there is no error with course data.
                     Returns status 404 when course not found and status 400 when there is problem with updated course data.
                     Endpoint available only for course author and page admin.""")
-    public Course updateCourse(
+    public EntityModel<Course> updateCourse(
             @ApiParam(required = true)
             @RequestHeader("Authorization") String authHeader,
             @ApiParam(required = true)
@@ -132,19 +135,25 @@ public class CourseResource {
             @ApiParam(value = "course with updated data", required = true)
             @Valid @RequestBody Course updatedCourse
     ) throws CourseNotFoundException, JsonProcessingException, NotAnAuthorException {
-        service.update(id, authHeader, updatedCourse);
+        String[] courseExceptFields = new String[] { "courseFeedback" };
 
-        String[] courseExceptFields = new String[] {
-                "courseFeedback"
-        };
+        Course updated = service.update(id, authHeader, updatedCourse);
+        Course filteredCourse = (Course) filterCourseData(updated, courseExceptFields);
 
-        return (Course) filterCourseData(updatedCourse, courseExceptFields);
+        return getCourseEntityModel(id, filteredCourse);
     }
 
     private Object filterCourseData(Object rawObject, String[] courseExceptFields) throws JsonProcessingException {
         String[] exceptFields = Stream.concat(Arrays.stream(courseExceptFields), Arrays.stream(USER_EXCEPT_FIELDS)).toArray(String[]::new);
 
         return JsonFilter.filterFields(rawObject, FILTER_NAME, exceptFields);
+    }
+
+    private EntityModel<Course> getCourseEntityModel(Long id, Course course) throws CourseNotFoundException, JsonProcessingException {
+        EntityModel<Course> model = EntityModel.of(course);
+        WebMvcLinkBuilder linkToCourse = linkTo(methodOn(this.getClass()).getCourseById(id));
+        model.add(linkToCourse.withRel("course-link"));
+        return model;
     }
 
     @DeleteMapping("/{id}")

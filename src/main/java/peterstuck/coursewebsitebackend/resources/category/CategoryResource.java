@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +16,9 @@ import peterstuck.coursewebsitebackend.services.category.CategoryService;
 
 import javax.validation.Valid;
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -58,12 +63,14 @@ public class CategoryResource {
         Returns status 201 (CREATED) when category was successfully created, 400 (BAD REQUEST) when there's an error in category data.
         Operation available only for page administrator.
         """)
-    public Category createCategory(
+    public EntityModel<Category> createCategory(
             @ApiParam(required = true)
             @RequestHeader("Authorization") String authHeader,
             @ApiParam(value = "valid new Category object", required = true)
             @Valid @RequestBody Category category) {
-        return service.save(category);
+        Category savedCategory = service.save(category);
+
+        return getCategoryEntityModel(savedCategory);
     }
 
     @PutMapping("/{categoryId}")
@@ -72,14 +79,27 @@ public class CategoryResource {
             400 (BAD REQUEST) when there's an error in category data or 404 when category was not found.
             Operation available only for page administrator.
             """)
-    public Category updateCategory(
+    public EntityModel<Category> updateCategory(
             @ApiParam(required = true)
             @RequestHeader("Authorization") String authHeader,
             @ApiParam(value = "id of category that is going to be updated", required = true)
             @PathVariable int categoryId,
             @ApiParam(value = "valid Category object with updated data", required = true)
             @Valid @RequestBody Category category) throws CategoryNotFoundException {
-        return service.update(categoryId, category);
+        Category updated = service.update(categoryId, category);
+
+        return getCategoryEntityModel(updated);
+    }
+
+    private EntityModel<Category> getCategoryEntityModel(Category category) {
+        EntityModel<Category> model = EntityModel.of(category);
+        WebMvcLinkBuilder linkToMainCategories = linkTo(methodOn(this.getClass()).getMainCategories());
+        model.add(linkToMainCategories.withRel("main-categories-link"));
+
+        WebMvcLinkBuilder linkToChildCategories = linkTo(methodOn(this.getClass()).getChildCategories(category.getId()));
+        model.add(linkToChildCategories.withRel("child-categories-link"));
+
+        return model;
     }
 
     @DeleteMapping("/{categoryId}")

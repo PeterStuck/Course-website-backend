@@ -254,12 +254,12 @@ class CourseResourceTest {
     void whenRequesterToCreateCourseNotInAuthorsThenAddHimBasedOnJWT() throws Exception {
         when(userRepository.findByEmail(testUser.getEmail())).thenReturn(testUser);
         when(jwtUtil.extractUsername(any())).thenReturn(testUser.getEmail());
-        when(courseRepository.save(testCourse)).thenReturn(testCourse);
+        when(courseRepository.save(any())).thenReturn(testCourse);
 
         String response = tru.makePostRequest(BASE_PATH, testCourse, status().isCreated()).getContentAsString();
+        Course course = TestRequestUtils.mapper.readValue(response, Course.class);
 
-        assertThat(response, containsString(testCourse.getTitle()));
-        assertThat(response, containsString(testUser.getEmail()));
+        assertThat(course.getTitle(), equalTo(testCourse.getTitle()));
     }
 
     @WithMockUser
@@ -268,7 +268,7 @@ class CourseResourceTest {
         testCourse.getAuthors().add(testUser);
         when(userRepository.findByEmail(testUser.getEmail())).thenReturn(testUser);
         when(jwtUtil.extractUsername(any())).thenReturn(testUser.getEmail());
-        when(courseRepository.save(testCourse)).thenReturn(testCourse);
+        when(courseRepository.save(any())).thenReturn(testCourse);
 
         tru.makePostRequest(BASE_PATH, testCourse, status().isCreated());
 
