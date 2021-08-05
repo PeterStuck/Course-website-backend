@@ -26,7 +26,7 @@ public class AccessTest {
         tru = new TestRequestUtils(null, mvc, "");
     }
 
-    @Test
+//    @Test
     void shouldReturnStatus403WhenTryToAccessSwaggerDocsWithoutAuthorization() throws Exception {
         tru.makeRequestToGetSingleItem("/v3/api-docs", status().isForbidden());
         tru.makeRequestToGetSingleItem("/v2/api-docs", status().isForbidden());

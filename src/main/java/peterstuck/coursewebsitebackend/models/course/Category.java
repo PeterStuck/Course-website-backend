@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import javax.persistence.*;
@@ -11,6 +12,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import java.util.List;
 
+@Schema(description = "Details about category")
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
 @Setter
@@ -18,7 +20,6 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "category")
-@ApiModel(description = "Details about category")
 public class Category {
 
     @Id
@@ -26,16 +27,17 @@ public class Category {
     @Column(name = "id")
     private int id;
 
+    @Schema(description = "Name of category", required = true)
     @Column
     @Size(min = 4, message = "Category name should have at least 4 characters.")
-    @ApiModelProperty(notes = "Name of category", required = true)
     private String name;
 
+    @Schema(description = "When zero then it's a main category", required = true)
     @Column(name = "parent_category_id")
     @Min(value = 0, message = "Parent category ID cannot be negative.")
-    @ApiModelProperty(notes = "When zero then it's a main category", required = true)
     private int parentCategoryId;
 
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(

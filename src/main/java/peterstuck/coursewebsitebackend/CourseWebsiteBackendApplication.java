@@ -10,12 +10,10 @@ import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.util.Collections;
 
 @SpringBootApplication
-@EnableSwagger2
 @EnableAspectJAutoProxy
 public class CourseWebsiteBackendApplication {
 
@@ -36,7 +34,7 @@ public class CourseWebsiteBackendApplication {
 	private ApiInfo apiInfo() {
 		return new ApiInfo(
 			"Course website API",
-			"API for course website front-end. Provides endpoints to make operations on courses, categories, rates and also to authentication purposes.",
+			"Course website sample application",
 			"1.0",
 			"",
 			new Contact("Piotr Krawczyk", "", "pkrawczyk.kontakt@gmail.com"),
@@ -45,5 +43,7 @@ public class CourseWebsiteBackendApplication {
 			Collections.emptyList()
 		);
 	}
+
+
 
 }

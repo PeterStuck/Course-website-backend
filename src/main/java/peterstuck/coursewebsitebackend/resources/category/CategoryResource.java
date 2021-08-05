@@ -1,8 +1,12 @@
 package peterstuck.coursewebsitebackend.resources.category;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.hateoas.EntityModel;
@@ -23,29 +27,35 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/categories")
-@Api(value = "Category", tags = { "Category" })
+@Tag(name = "Categories")
 public class CategoryResource {
 
     @Autowired
     @Qualifier("categoryServiceImpl")
     private CategoryService service;
 
+    @Operation(summary = "returns main categories", description = "Main categories are categories without parent category (0 as parent category id).")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Categories found",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Category.class)) }),
+            @ApiResponse(responseCode = "204", description = "No categories found",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Category.class)) }),
+    })
     @GetMapping
-    @ApiOperation(value = "returns main categories", notes = """
-            Main categories are categories without parent category (0 as parent category ID).
-            Returns status 200 (OK) when categories are available, 204 (NO CONTENT) when it's empty list.
-            """)
     public ResponseEntity<List<Category>> getMainCategories() {
         return getResponseAndStatus(service.getMainCategories());
     }
 
+    @Operation(summary = "returns child categories", description = "Returns child categories based on parent category id.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Child categories found",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Category.class)) }),
+            @ApiResponse(responseCode = "204", description = "No child categories found",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Category.class)) }),
+    })
     @GetMapping("/{parentCategoryId}")
-    @ApiOperation(value = "returns child categories", notes = """
-            Returns child categories based on parent category ID.
-            Returns status 200 (OK) when categories are available, 204 (NO CONTENT) when it's empty list.
-            """)
     public ResponseEntity<List<Category>> getChildCategories(
-            @ApiParam(required = true)
+            @Parameter(required = true)
             @PathVariable int parentCategoryId) {
         return getResponseAndStatus(service.getChildCategories(parentCategoryId));
     }
@@ -57,34 +67,43 @@ public class CategoryResource {
         );
     }
 
+
+    @Operation(summary = "creates new category", description = "Operation available only for page administrator.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Category created",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Category.class)) }),
+            @ApiResponse(responseCode = "400", description = "Invalid category data or not an admin",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Category.class)) }),
+    })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @ApiOperation(value = "creates new category", notes = """
-        Returns status 201 (CREATED) when category was successfully created, 400 (BAD REQUEST) when there's an error in category data.
-        Operation available only for page administrator.
-        """)
     public EntityModel<Category> createCategory(
-            @ApiParam(required = true)
+            @Parameter(required = true)
             @RequestHeader("Authorization") String authHeader,
-            @ApiParam(value = "valid new Category object", required = true)
+            @Parameter(description = "valid new Category object", required = true)
             @Valid @RequestBody Category category) {
         Category savedCategory = service.save(category);
 
         return getCategoryEntityModel(savedCategory);
     }
 
+
+    @Operation(summary = "updates category", description = "Operation available only for page administrator.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Category updated",
+                content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Category.class)) }),
+            @ApiResponse(responseCode = "400", description = "Invalid category data or not an admin",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Category.class)) }),
+            @ApiResponse(responseCode = "404", description = "Category with supplied id not found",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Category.class)) }),
+    })
     @PutMapping("/{categoryId}")
-    @ApiOperation(value = "updates existing category", notes = """
-            Returns status 200 (OK) when category was updated successfully,
-            400 (BAD REQUEST) when there's an error in category data or 404 when category was not found.
-            Operation available only for page administrator.
-            """)
     public EntityModel<Category> updateCategory(
-            @ApiParam(required = true)
+            @Parameter(required = true)
             @RequestHeader("Authorization") String authHeader,
-            @ApiParam(value = "id of category that is going to be updated", required = true)
+            @Parameter(description = "id of category that is going to be updated", required = true)
             @PathVariable int categoryId,
-            @ApiParam(value = "valid Category object with updated data", required = true)
+            @Parameter(description = "valid Category object with updated data", required = true)
             @Valid @RequestBody Category category) throws CategoryNotFoundException {
         Category updated = service.update(categoryId, category);
 
@@ -102,15 +121,20 @@ public class CategoryResource {
         return model;
     }
 
+    @Operation(summary = "deletes category", description = "Operation available only for page administrator.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Category deleted",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Category.class)) }),
+            @ApiResponse(responseCode = "403", description = "Not an admin",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Category.class)) }),
+            @ApiResponse(responseCode = "404", description = "Category with supplied id not found",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Category.class)) }),
+    })
     @DeleteMapping("/{categoryId}")
-    @ApiOperation(value = "deletes existing category", notes = """
-            Returns status 200 (OK) when category was successfully deleted, 404 when category to delete was not found.
-            Operation available only for page administrator.
-            """)
     public String deleteCategory(
-            @ApiParam(required = true)
+            @Parameter(required = true)
             @RequestHeader("Authorization") String authHeader,
-            @ApiParam(value = "id of category to delete", required = true)
+            @Parameter(description = "id of category to delete", required = true)
             @PathVariable int categoryId) throws CategoryNotFoundException {
         service.delete(categoryId);
         return "Category with id: " + categoryId + " successfully deleted.";

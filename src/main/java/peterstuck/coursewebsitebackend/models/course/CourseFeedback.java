@@ -2,7 +2,7 @@ package peterstuck.coursewebsitebackend.models.course;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,7 +25,7 @@ public class CourseFeedback {
     @OneToMany(mappedBy = "courseFeedback", cascade = CascadeType.ALL)
     private List<Comment> comments;
 
-    @ApiModelProperty(value = "Average rate from all rates for course")
+    @Schema(description = "Average rate from all rates for course")
     private double avgRate;
 
     private int ratesCount;

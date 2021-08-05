@@ -1,9 +1,13 @@
 package peterstuck.coursewebsitebackend.resources.user;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -20,7 +24,7 @@ import javax.validation.Valid;
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/users")
-@Api(value = "Users", tags = { "Users" })
+@Tag(name = "Users")
 public class UserResource {
 
     @Autowired
@@ -29,42 +33,48 @@ public class UserResource {
 
     private final String FILTER_NAME = "JsonFilter";
 
+    @Operation(summary = "register new user", description = "Operation available for everyone.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "User registered",
+                content = { @Content(mediaType = "application/json", schema = @Schema(implementation = User.class)) }),
+            @ApiResponse(responseCode = "400", description = "Invalid user data",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = User.class)) }),
+    })
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    @ApiOperation(value = "returns status 201 (CREATED) when user was created successfully", notes = """
-            User object must be valid to proceed. 
-            Returns status 400 (BAD REQUEST) when user data is invalid and error messages.
-            Operation available for everyone.
-            """)
     public void registerNewUser(
-            @ApiParam(value = "valid new user object", required = true)
+            @Parameter(description = "valid new user object", required = true)
             @Valid @RequestBody User user) throws UsernameNotUniqueException {
         service.register(user);
     }
 
+    @Operation(summary = "updates user data", description = "User identification is being proceed based on passed JWT.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "User updated",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = User.class)) }),
+            @ApiResponse(responseCode = "400", description = "Invalid user data",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = User.class)) }),
+    })
     @PutMapping
-    @ApiOperation(value = "returns status 200 (OK) when user was successfully updated", notes = """
-            User identification is being proceed based on passed JWT.
-            When user was found in database and updated data is valid object is being updated and saving changes.
-            Returns status 400 (BAD REQUEST) when user data is invalid and error messages.
-            """)
     public JwtToken updateUser(
-            @ApiParam(value = "authorization request header", required = true)
+            @Parameter(description = "authorization request header", required = true)
             @RequestHeader("Authorization") String authHeader,
-            @ApiParam(value = "valid updated user object", required = true)
+            @Parameter(description = "valid updated user object", required = true)
             @Valid @RequestBody User user) throws UsernameNotFoundException {
         String newToken = service.update(authHeader, user);
         return new JwtToken(newToken);
     }
 
+    @Operation(summary = "returns user data", description = "User identification is being proceed based on passed JWT.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "User data (without vulnerable data)",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = User.class)) }),
+            @ApiResponse(responseCode = "400", description = "Invalid JWT",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = User.class)) }),
+    })
     @GetMapping
-    @ApiOperation(value = "returns particular user data", notes = """
-            User identification is being proceed based on passed JWT.
-            Response excludes sensitive data and non important fields, ex. user roles, password etc.
-            When everything proceed successfully returns status 200 (OK), otherwise 400 (BAD REQUEST).
-            """)
     public User getUserInfo(
-            @ApiParam(value = "authorization request header", required = true)
+            @Parameter(description = "authorization request header", required = true)
             @RequestHeader("Authorization") String authHeader) throws UsernameNotFoundException, JsonProcessingException {
         User user = service.getUserInfo(authHeader);
 

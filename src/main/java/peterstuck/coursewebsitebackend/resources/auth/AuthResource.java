@@ -1,8 +1,12 @@
 package peterstuck.coursewebsitebackend.resources.auth;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import peterstuck.coursewebsitebackend.services.auth.AuthService;
@@ -12,21 +16,26 @@ import javax.validation.Valid;
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/auth")
-@Api(value = "Authentication", tags = { "Authentication" })
+@Tag(name = "Authentication")
 public class AuthResource {
 
     @Autowired
     private AuthService service;
 
-    @PostMapping("/authenticate")
-    @ApiOperation(value = "returns generated JWT",
-            notes = """
+    @Operation(summary = "returns generated JWT",
+            description = """
                 Generate JSON Web Token based on credentials that user provides. 
                 This token is used to authenticate user on particular endpoints.
-                When credentials are invalid returns status 400 and message.
             """)
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "User authenticated",
+                content = { @Content(mediaType = "application/json", schema = @Schema(implementation = JwtToken.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad credentials",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = JwtToken.class)) })
+    })
+    @PostMapping("/authenticate")
     public JwtToken authenticateUserAndReturnToken(
-            @ApiParam(value = "consists of email and plain password", required = true)
+            @Parameter(description = "consists of email and plain password", required = true)
             @Valid  @RequestBody UserCredentials credentials) {
         String token = service.authenticateUser(credentials);
 

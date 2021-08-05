@@ -1,9 +1,13 @@
 package peterstuck.coursewebsitebackend.resources.course;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.hateoas.EntityModel;
@@ -29,7 +33,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/courses")
-@Api(value = "Courses", tags = { "Courses" })
+@Tag(name = "Courses")
 public class CourseResource {
 
     @Autowired
@@ -46,13 +50,16 @@ public class CourseResource {
             "purchasedCourses"
     };
 
+    @Operation(summary = "returns all courses", description = "When keyword param is provided it will also filter courses with keyword in title.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found courses",
+                content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Course.class)) }),
+            @ApiResponse(responseCode = "204", description = "No courses",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Course.class)) })
+    })
     @GetMapping
-    @ApiOperation(value = "returns all courses", notes = """
-        When keyword param is provided it will also filter courses with keyword in title.
-        Return status 200 when courses where successfully returned, 204 when no courses are available.
-        """)
     public ResponseEntity<Object> getAllCourses(
-            @ApiParam(value = "additionally searches courses by titles containing keyword when provided")
+            @Parameter(name = "additionally searches courses by titles containing keyword when provided")
             @RequestParam(required = false) String keyword) throws JsonProcessingException {
         List<Course> courses = service.findAll(keyword);
 
@@ -67,14 +74,18 @@ public class CourseResource {
         return getResponseAndStatus((List<Course>) filterCourseData(courses, courseExceptFields));
     }
 
+
+    @Operation(summary = "returns courses with given category id", description = "When keyword param is provided it will also filter courses with keyword in title.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found courses",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Course.class)) }),
+            @ApiResponse(responseCode = "204", description = "No courses",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Course.class)) })
+    })
     @GetMapping("/category/{categoryId}")
-    @ApiOperation(value = "returns courses with given category ID", notes = """
-        When keyword param is provided it will also filter courses with keyword in title.
-        Return status 200 when courses where successfully returned, 204 when no courses are available.
-        """)
     public ResponseEntity<Object> getCoursesByCategory(
             @PathVariable int categoryId,
-            @ApiParam(value = "additionally searches courses by titles containing keyword when provided")
+            @Parameter(description = "additionally searches courses by titles containing keyword when provided")
             @RequestParam(required = false) String keyword
     ) throws JsonProcessingException {
         List<Course> courses = service.findAllByCategory(keyword, categoryId);
@@ -97,21 +108,33 @@ public class CourseResource {
         );
     }
 
+    @Operation(summary = "returns course with supplied id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found course",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Course.class)) }),
+            @ApiResponse(responseCode = "404", description = "No course with supplied id",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Course.class)) })
+    })
     @GetMapping("/{id}")
-    @ApiOperation(value = "returns course with given ID", notes = "When course is not found then returns status 404.")
     public EntityModel<Course> getCourseById(@PathVariable Long id) throws CourseNotFoundException, JsonProcessingException {
         Course filteredCourse = (Course) filterCourseData(service.findById(id), new String[0]);
 
         return EntityModel.of(filteredCourse);
     }
 
+    @Operation(summary = "adds new course", description = "Adds new course only when course object is valid.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Course created",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Course.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad course data",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Course.class)) })
+    })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @ApiOperation(value = "adds new course", notes = "Adds new course only when course object is valid.")
     public EntityModel<Course> addCourse(
-            @ApiParam(required = true)
+            @Parameter(required = true)
             @RequestHeader("Authorization") String authHeader,
-            @ApiParam(value = "new course object should provide basic information about itself and category/ies", required = true)
+            @Parameter(description = "new course object should provide basic information about itself and category/ies", required = true)
             @Valid @RequestBody Course course) throws JsonProcessingException, UserNotExistsException, CourseNotFoundException {
         final String[] courseExceptFields = new String[] { "courseFeedback" };
 
@@ -121,18 +144,23 @@ public class CourseResource {
         return getCourseEntityModel(filteredCourse.getId(), filteredCourse);
     }
 
+    @Operation(summary = "updates existing course with given id",
+            description = "Endpoint available only for course author and page admin.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Course updated",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Course.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad course data",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Course.class)) }),
+            @ApiResponse(responseCode = "404", description = "No course with supplied id",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Course.class)) }),
+    })
     @PutMapping("/{id}")
-    @ApiOperation(value = "updates existing course with given ID",
-            notes = """
-                    Update is being proceed only if course with given ID already exists and there is no error with course data.
-                    Returns status 404 when course not found and status 400 when there is problem with updated course data.
-                    Endpoint available only for course author and page admin.""")
     public EntityModel<Course> updateCourse(
-            @ApiParam(required = true)
+            @Parameter(required = true)
             @RequestHeader("Authorization") String authHeader,
-            @ApiParam(required = true)
+            @Parameter(required = true)
             @PathVariable Long id,
-            @ApiParam(value = "course with updated data", required = true)
+            @Parameter(description = "course with updated data", required = true)
             @Valid @RequestBody Course updatedCourse
     ) throws CourseNotFoundException, JsonProcessingException, NotAnAuthorException {
         String[] courseExceptFields = new String[] { "courseFeedback" };
@@ -156,14 +184,19 @@ public class CourseResource {
         return model;
     }
 
+    @Operation(summary = "deletes course with supplied id",
+            description = "Endpoint available only for course author and page admin.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Course deleted",
+                content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Course.class)) }),
+            @ApiResponse(responseCode = "400", description = "Not allowed to delete course",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Course.class)) }),
+            @ApiResponse(responseCode = "404", description = "Course with supplied id not found",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Course.class)) })
+    })
     @DeleteMapping("/{id}")
-    @ApiOperation(value = "deletes course with given ID",
-            notes = """
-                    Deletes course only when course with given ID exists.
-                    Returns status 404 when course not found.
-                    Endpoint available only for course author and page admin.""")
     public String deleteCourse(
-            @ApiParam(required = true)
+            @Parameter(required = true)
             @RequestHeader("Authorization") String authHeader,
             @PathVariable Long id) throws CourseNotFoundException, NotAnAuthorException {
         service.delete(id, authHeader);
